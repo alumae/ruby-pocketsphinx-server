@@ -10,20 +10,10 @@ class Recognizer
   attr :clock
   attr :appsink
          
-	def initialize()
+	def initialize(config={})
+		
 		@clock = Gst::SystemClock.new
 		@result = ""
-		## construct pipeline
-		#@pipeline = Gst::Parse.launch("appsrc name=appsrc ! decodebin2 ! audioconvert ! audioresample ! pocketsphinx name=asr ! appsink name=appsink")
-		
-		## define input audio properties
-		#@appsrc = @pipeline.get_child("appsrc")
-		#caps = Gst::Caps.parse("audio/x-flac, rate=(int)16000;")
-		#@appsrc.set_property("caps", caps)
-		
-		## define behaviour for ASR output
-		#@asr = @pipeline.get_child("asr")
-
 
 		@appsrc = Gst::ElementFactory.make "appsrc", "appsrc"
 		@decoder = Gst::ElementFactory.make "decodebin2", "decoder"
@@ -32,12 +22,18 @@ class Recognizer
 		@asr = Gst::ElementFactory.make "pocketsphinx", "asr"
 		@appsink = Gst::ElementFactory.make "appsink", "appsink"
 
-		#caps = Gst::Caps.parse("audio/x-flac, rate=(int)16000;")
-		#@appsrc.set_property("caps", caps)
+
+    pocketsphinx_config = config['pocketsphinx']
+		if  pocketsphinx_config != nil
+		  pocketsphinx_config.map{ |k,v|
+		    puts "Setting #{k} to #{v}..."
+		    @asr.set_property(k, v) 
+		  }
+    end
+
 
     create_pipeline()
 		
-		#@pipeline.pause
 	end
 
 	def create_pipeline()
@@ -48,10 +44,9 @@ class Recognizer
 		
 		@decoder.signal_connect('pad-added') { | element, pad, last, data | 
 			puts "---- pad-added ---- "
-			pad.link  @audioconvert.get_pad("sink")
+			pad.link @audioconvert.get_pad("sink")
 	  }
 
-		
 		@queue = Queue.new
 		
 		# This returns when ASR engine has been fully loaded
@@ -82,11 +77,9 @@ class Recognizer
  
     
   # Call this before starting a new recognition
-  def clear(caps)
-		#caps = Gst::Caps.parse(caps)
-		#@appsrc.set_property("caps", caps)
-
-  
+  def clear(caps_str)
+		caps = Gst::Caps.parse(caps_str)
+		@appsrc.set_property("caps", caps)  
     @result = ""
     queue.clear
     pipeline.pause
