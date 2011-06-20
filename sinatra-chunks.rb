@@ -7,6 +7,7 @@ require 'set'
 require 'yaml'
 
 configure do
+	FULL_BODY = false
 	config = YAML.load_file('conf.yaml')
 	RECOGNIZER = Recognizer.new(config)
 	$prettifier = nil
@@ -14,6 +15,8 @@ configure do
 	  $prettifier = IO.popen(config['prettifier'], mode="r+")
 	end
 	disable :show_exceptions
+	OUTDIR = "out/"
+	CHUNK_SIZE =16*1024
 end
 
 post '/' do
@@ -26,15 +29,37 @@ post '/' do
   RECOGNIZER.clear(caps_str)
   
   length = 0
-  # TODO: make sure send only chunks of size modulo 2
-  #req.body.each do |chunk|
-  #  RECOGNIZER.feed_data(chunk)   
-  #  length += chunk.size
-  #end
   
-  length = request.body.size
-  RECOGNIZER.feed_data(request.body.read)   
-  
+  if not FULL_BODY
+		
+    full_body = ""
+    left_over = ""
+		req.body.each do |chunk|
+			#puts "got chunk of size #{chunk.length}"
+			chunk_to_rec = left_over + chunk
+			#puts "chunk_to_rec is of size #{chunk_to_rec.length}"
+			if chunk_to_rec.length > CHUNK_SIZE
+				chunk_to_send = chunk_to_rec[0..(chunk_to_rec.length / 2) * 2 - 1]
+				puts "chunk_to_send is of size #{chunk_to_send.length}"
+				RECOGNIZER.feed_data(chunk_to_send)
+				full_body += chunk_to_send
+				left_over = chunk_to_rec[chunk_to_send.length .. -1]
+			else
+			  left_over = chunk_to_rec
+			end
+			#puts "left_over is of size #{left_over.length}"
+			length += chunk.size
+		end
+		RECOGNIZER.feed_data(left_over)
+		full_body += left_over
+		
+	  File.open(OUTDIR + id +".raw", "wb") { |f|
+			f.write full_body
+		}
+  else
+		length = request.body.size
+		RECOGNIZER.feed_data(request.body.read)   
+	end
   
   puts "Got feed end"
   if length > 0
@@ -66,7 +91,7 @@ def content_type_to_caps(content_type)
 	end
   parts = content_type.split(%r{[,; ]})
   result = ""
-  allowed_types = Set.new ["audio/x-flac", "audio/x-raw-int", "application/ogg", "audio/mpeg", "audio/x-wav", ]
+  allowed_types = Set.new ["audio/x-flac", "audio/x-raw-int", "application/ogg", "audio/mpeg", "audio/x-wav",  ]
   if allowed_types.include? parts[0]
     result = parts[0]
     if parts[0] == "audio/x-raw-int"
@@ -77,7 +102,7 @@ def content_type_to_caps(content_type)
     end
     return result
   else
-		raise IOError, "Unsupported content type: " + parts[0]
+		raise IOError, "Unsupported content type: #{parts[0]}. Supported types are: " + allowed_types.to_a.join(", ") + "." 
   end
 end
 

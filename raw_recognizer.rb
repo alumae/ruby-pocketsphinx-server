@@ -18,7 +18,7 @@ class Recognizer
 		@appsrc = Gst::ElementFactory.make "appsrc", "appsrc"
 		@decoder = Gst::ElementFactory.make "decodebin2", "decoder"
 		@audioconvert = Gst::ElementFactory.make "audioconvert", "audioconvert"
-		@audioresample = Gst::ElementFactory.make "audioresample", "audioresample"
+		@audioresample = Gst::ElementFactory.make "audioresample", "audioresample"		
 		@asr = Gst::ElementFactory.make "pocketsphinx", "asr"
 		@appsink = Gst::ElementFactory.make "appsink", "appsink"
 
@@ -91,6 +91,10 @@ class Recognizer
     buffer = Gst::Buffer.new
     buffer.data = data
     buffer.timestamp = clock.time
+    
+	  File.open("raw_rec.raw", "ab") { |f|
+			f.write data
+		}    
     @appsrc.push_buffer(buffer)
   end
   
