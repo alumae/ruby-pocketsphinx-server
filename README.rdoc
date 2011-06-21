@@ -30,7 +30,7 @@ See conf.yaml
 
 ==Example 1
 
-Record a sentence to a wv file, in mono (hit Ctrl-C when done speaking):
+Record a sentence to a wav file, in mono (hit Ctrl-C when done speaking):
 
  rec -c 1 lause.wav
  
