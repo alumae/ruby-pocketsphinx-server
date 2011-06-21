@@ -28,14 +28,17 @@ See conf.yaml
 
 = Using the web service
 
-For example, record a sentence, in mono:
+==Example 1
+
+Record a sentence to a wv file, in mono (hit Ctrl-C when done speaking):
 
  rec -c 1 lause.wav
+ 
  
 Send it to the web service:
 
  curl   -X POST --data-binary @lause.wav -H "Content-Type: audio/x-wav"  http://localhost:8080
- 
+
 Output (encoded using json):
 
   {
@@ -49,4 +52,22 @@ Output (encoded using json):
     ],
     "id": "e30f54561135d681599915562d77d240"
   }
+ 
+== Example 2
+
+Record a raw file using arecord:
+
+ arecord --format=S16_LE  --file-type raw  --channels 1 --rate 16000 > sentence2.raw
+
+Send it to web service:
+ 
+ curl -X POST --data-binary @senrence.raw -H "Content-Type: audio/x-raw-int; rate=16000"  http://localhost:8080
+ 
+== Example 3
+
+Record a stream, pipe it to curl, which streams it directly to web service using PUT:
+
+ arecord --format=S16_LE --file-type raw --channels 1 --rate 16000 --duration 5 | curl -vv -T - -H "Content-Type: audio/x-raw-int; rate=16000"  http://localhost:8080
+ 
+ 
 

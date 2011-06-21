@@ -20,6 +20,15 @@ configure do
 end
 
 post '/' do
+  do_post()
+end
+
+put '/*' do
+  do_post()
+end
+
+
+def do_post()
   id = SecureRandom.hex
   puts "Request ID: " + id
   req = Rack::Request.new(env)
@@ -69,7 +78,6 @@ post '/' do
     JSON.pretty_generate({:status => 0, :id => id, :hypotheses => [:utterance => ""]})
   end
 end
-
 
 error do
     'Sorry, failed to process request. Reason: ' + env['sinatra.error'] + "\n"
