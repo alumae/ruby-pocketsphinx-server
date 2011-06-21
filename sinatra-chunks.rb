@@ -16,7 +16,7 @@ configure do
 	end
 	disable :show_exceptions
 	OUTDIR = "out/"
-	CHUNK_SIZE = 1
+	CHUNK_SIZE = 4*1024
 end
 
 post '/' do
@@ -35,27 +35,18 @@ post '/' do
     full_body = ""
     left_over = ""
 		req.body.each do |chunk|
-			#puts "got chunk of size #{chunk.length}"
 			chunk_to_rec = left_over + chunk
-			#puts "chunk_to_rec is of size #{chunk_to_rec.length}"
 			if chunk_to_rec.length > CHUNK_SIZE
 				chunk_to_send = chunk_to_rec[0..(chunk_to_rec.length / 2) * 2 - 1]
-				puts "chunk_to_send is of size #{chunk_to_send.length}"
 				RECOGNIZER.feed_data(chunk_to_send)
-				full_body += chunk_to_send
 				left_over = chunk_to_rec[chunk_to_send.length .. -1]
 			else
 			  left_over = chunk_to_rec
 			end
-			#puts "left_over is of size #{left_over.length}"
 			length += chunk.size
 		end
 		RECOGNIZER.feed_data(left_over)
-		full_body += left_over
 		
-	  File.open(OUTDIR + id +".raw", "wb") { |f|
-			f.write full_body
-		}
   else
 		length = request.body.size
 		RECOGNIZER.feed_data(request.body.read)   

@@ -92,6 +92,7 @@ class Recognizer
     buffer.data = my_data
     buffer.timestamp = clock.time
     appsrc.push_buffer(buffer)
+    # HACK: we need to reference the buffer so that ruby won't overwrite it
     @data_buffers.push my_data
   end
   
