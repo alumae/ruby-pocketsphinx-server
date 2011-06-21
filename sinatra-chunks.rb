@@ -16,7 +16,7 @@ configure do
 	end
 	disable :show_exceptions
 	OUTDIR = "out/"
-	CHUNK_SIZE =16*1024
+	CHUNK_SIZE = 1
 end
 
 post '/' do
