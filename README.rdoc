@@ -1,0 +1,51 @@
+= Introduction
+
+Ruby-based web service for speech recognition, using the PocketSphinx gstreamer module.
+
+= Requirements
+
+* Ruby 1.8
+* Rake
+* Unicorn
+* Pocketsphinx
+* Some acoustic and language models for Pocketsphinx
+
+= Running
+
+ unicorn -c unicorn.conf.rb config.ru
+
+= Configuration
+
+== Web service
+
+Unicorn configuration is in file +unicorn.conf.rb+. See http://unicorn.bogomips.org/examples/unicorn.conf.rb for
+more info. 
+
+== Recognizer
+
+See +conf.yaml+
+
+= Using the web service
+
+For example, record a sentence, in mono:
+
+ rec -c 1 lause.wav
+ 
+Send it to the web service:
+
+ curl   -X POST --data-binary @lause.wav -H "Content-Type: audio/x-wav"  http://localhost:8080
+ 
+Output (encoded using json):
+
+  {
+    "status": 0,
+    "hypotheses": [
+      {
+        "utterance": [
+          "t\u00e4na on v\u00e4ljas \u00fcsna ilus ilm"
+        ]
+      }
+    ],
+    "id": "e30f54561135d681599915562d77d240"
+  }
+
