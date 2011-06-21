@@ -18,7 +18,7 @@ Ruby-based web service for speech recognition, using the PocketSphinx gstreamer 
 
 == Web service
 
-Unicorn configuration is in file +unicorn.conf.rb+. See http://unicorn.bogomips.org/examples/unicorn.conf.rb for
+Unicorn configuration is in file *unicorn.conf.rb*. See http://unicorn.bogomips.org/examples/unicorn.conf.rb for
 more info. 
 
 == Recognizer
