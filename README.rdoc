@@ -65,7 +65,7 @@ Send it to web service:
  
 == Example 3
 
-Record a stream, pipe it to curl, which streams it directly to web service using PUT:
+Record a 5 second audio, pipe it to curl, which streams it directly to web service using PUT (and gets almost instant response):
 
  arecord --format=S16_LE --file-type raw --channels 1 --rate 16000 --duration 5 | curl -vv -T - -H "Content-Type: audio/x-raw-int; rate=16000"  http://localhost:8080
  
