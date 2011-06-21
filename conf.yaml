@@ -1,0 +1,10 @@
+pocketsphinx:
+    hmm: models/est16k.cd_cont_3000
+    dict: models/jutusaated.swwp2.dict
+    lm: models/sphinx-trigram.jutusaated.swwp2.arpa
+#    maxhmmpf: 10000
+#    bestpath: true
+#    maxwpf: 100
+#    fwdflat: true
+    
+prettifier: ./prettify-swwp2.py -m models/compounds.model
