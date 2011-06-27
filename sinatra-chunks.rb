@@ -68,8 +68,7 @@ def do_post()
     puts "RESULT:" + result
     result = prettify(result)
     puts "PRETTY RESULT:" + result                          
-    result = Iconv.iconv('utf-8', 'latin1', result)
-    
+    result = Iconv.iconv('utf-8', 'latin1', result)[0]
     headers "Content-Type" => "application/json; charset=utf-8", "Content-Disposition" => "attachment"
     JSON.pretty_generate({:status => 0, :id => id, :hypotheses => [:utterance => result]})
   else
