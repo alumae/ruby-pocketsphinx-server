@@ -14,14 +14,25 @@ class Recognizer
     @data_buffers = []
     @clock = Gst::SystemClock.new
     @result = ""
+    
+    @outdir = nil
+    begin
+      @outdir = config.fetch('logging', {}).fetch('audio-dir', '')
+    rescue
+    end
 
     @appsrc = Gst::ElementFactory.make "appsrc", "appsrc"
     @decoder = Gst::ElementFactory.make "decodebin2", "decoder"
     @audioconvert = Gst::ElementFactory.make "audioconvert", "audioconvert"
     @audioresample = Gst::ElementFactory.make "audioresample", "audioresample"    
+    @tee = Gst::ElementFactory.make "tee", "tee"
+    @queue1 = Gst::ElementFactory.make "queue", "queue1"
+    @filesink = Gst::ElementFactory.make "filesink", "filesink"
+    @queue2 = Gst::ElementFactory.make "queue", "queue2"   
     @asr = Gst::ElementFactory.make "pocketsphinx", "asr"
     @appsink = Gst::ElementFactory.make "appsink", "appsink"
 
+    @filesink.set_property("location", "/dev/null")
 
     pocketsphinx_config = config['pocketsphinx']
     if  pocketsphinx_config != nil
@@ -29,20 +40,24 @@ class Recognizer
         puts "Setting #{k} to #{v}..."
         @asr.set_property(k, v) 
       }
+      # This returns when ASR engine has been fully loaded
+      @asr.set_property('configured', true)
     end
 
-
     create_pipeline()
-    
   end
 
+
+ 
   def create_pipeline()
     @pipeline = Gst::Pipeline.new "pipeline"
-    @pipeline.add @appsrc, @decoder, @audioconvert, @audioresample, @asr, @appsink
-    @appsrc >> @decoder   
-    @audioconvert >> @audioresample >> @asr >> @appsink
+    @pipeline.add @appsrc, @decoder, @audioconvert, @audioresample, @tee, @queue1, @filesink, @queue2, @asr, @appsink
+    @appsrc >> @decoder
+    @audioconvert >> @audioresample >> @tee
+    @tee >> @queue1 >> @asr >> @appsink
+    @tee >> @queue2 >> @filesink
     
-    @decoder.signal_connect('pad-added') { | element, pad, last, data | 
+    @decoder.signal_connect('pad-added') { | element, pad, last, data |
       puts "---- pad-added ---- "
       pad.link @audioconvert.get_pad("sink")
     }
@@ -52,14 +67,14 @@ class Recognizer
     # This returns when ASR engine has been fully loaded
     @asr.set_property('configured', true)
     
-    @asr.signal_connect('partial_result') { |asr, text, uttid| 
-        #puts "PARTIAL: " + text 
-        @result = text 
+    @asr.signal_connect('partial_result') { |asr, text, uttid|
+        #puts "PARTIAL: " + text
+        @result = text
     }
 
-    @asr.signal_connect('result') { |asr, text, uttid| 
-        #puts "FINAL: " + text 
-        @result = text  
+    @asr.signal_connect('result') { |asr, text, uttid|
+        #puts "FINAL: " + text
+        @result = text
         @queue.push(1)
     }
     
@@ -73,17 +88,22 @@ class Recognizer
     @bus.signal_connect('message::state-changed') { |appsink, data|
         puts "##### STATE-CHANGED #####"
     }
-  end 
- 
+  end     
     
+  
   # Call this before starting a new recognition
-  def clear(caps_str)
+  def clear(id, caps_str)
     caps = Gst::Caps.parse(caps_str)
-    @appsrc.set_property("caps", caps)  
+    @appsrc.set_property("caps", caps)
     @result = ""
     queue.clear
     pipeline.pause
-  end
+    if @outdir != nil
+      @filesink.set_state(Gst::State::NULL)
+      @filesink.set_property('location', "#{@outdir}/#{id}.raw")
+    end
+    @filesink.set_state(Gst::State::PLAYING)
+  end  
   
   # Feed new chunk of audio data to the recognizer
   def feed_data(data)
@@ -94,6 +114,7 @@ class Recognizer
     appsrc.push_buffer(buffer)
     # HACK: we need to reference the buffer so that ruby won't overwrite it
     @data_buffers.push my_data
+    pipeline.play
   end
   
   # Notify recognizer of utterance end
@@ -105,13 +126,13 @@ class Recognizer
   # Returns the final recognition result
   def wait_final_result
     queue.pop
-    @pipeline.stop
+    @pipeline.ready
     @data_buffers.clear
     return result
   end  
   
   def stop
     @pipeline.play
-    @pipeline.stop
+    @pipeline.ready
   end
 end

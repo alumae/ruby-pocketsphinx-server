@@ -7,7 +7,6 @@ require 'set'
 require 'yaml'
 
 configure do
-  FULL_BODY = false
   config = YAML.load_file('conf.yaml')
   RECOGNIZER = Recognizer.new(config)
   $prettifier = nil
@@ -15,7 +14,8 @@ configure do
     $prettifier = IO.popen(config['prettifier'], mode="r+")
   end
   disable :show_exceptions
-  OUTDIR = "out/"
+  
+  
   CHUNK_SIZE = 4*1024
 end
 
@@ -35,31 +35,24 @@ def do_post()
   puts "Parsing content type " + req.content_type
   caps_str = content_type_to_caps(req.content_type)
   puts "CAPS string is " + caps_str
-  RECOGNIZER.clear(caps_str)
+  RECOGNIZER.clear(id, caps_str)
   
   length = 0
   
-  if not FULL_BODY
-    
-    full_body = ""
-    left_over = ""
-    req.body.each do |chunk|
-      chunk_to_rec = left_over + chunk
-      if chunk_to_rec.length > CHUNK_SIZE
-        chunk_to_send = chunk_to_rec[0..(chunk_to_rec.length / 2) * 2 - 1]
-        RECOGNIZER.feed_data(chunk_to_send)
-        left_over = chunk_to_rec[chunk_to_send.length .. -1]
-      else
-        left_over = chunk_to_rec
-      end
-      length += chunk.size
+  left_over = ""
+  req.body.each do |chunk|
+    chunk_to_rec = left_over + chunk
+    if chunk_to_rec.length > CHUNK_SIZE
+      chunk_to_send = chunk_to_rec[0..(chunk_to_rec.length / 2) * 2 - 1]
+      RECOGNIZER.feed_data(chunk_to_send)
+      left_over = chunk_to_rec[chunk_to_send.length .. -1]
+    else
+      left_over = chunk_to_rec
     end
-    RECOGNIZER.feed_data(left_over)
-    
-  else
-    length = request.body.size
-    RECOGNIZER.feed_data(request.body.read)   
+    length += chunk.size
   end
+  RECOGNIZER.feed_data(left_over)
+    
   
   puts "Got feed end"
   if length > 0
