@@ -15,6 +15,12 @@ configure do
   end
   disable :show_exceptions
   
+  $outdir = nil
+  begin
+    $outdir = config.fetch('logging', {}).fetch('request-debug', '')
+  rescue
+  end
+  
   
   CHUNK_SIZE = 4*1024
 end
@@ -32,6 +38,15 @@ def do_post()
   id = SecureRandom.hex
   puts "Request ID: " + id
   req = Rack::Request.new(env)
+  puts headers
+  if $outdir != nil
+     File.open("#{$outdir}/#{id}.info", 'w') { |f|
+       req.env.select{ |k,v|
+          f.write "#{k}: #{v}\n"
+       }
+    }
+  end
+  puts "User agent: " + req.user_agent
   puts "Parsing content type " + req.content_type
   caps_str = content_type_to_caps(req.content_type)
   puts "CAPS string is " + caps_str

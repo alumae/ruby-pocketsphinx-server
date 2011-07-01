@@ -17,7 +17,7 @@ class Recognizer
     
     @outdir = nil
     begin
-      @outdir = config.fetch('logging', {}).fetch('audio-dir', '')
+      @outdir = config.fetch('logging', {}).fetch('request-debug', '')
     rescue
     end
 
