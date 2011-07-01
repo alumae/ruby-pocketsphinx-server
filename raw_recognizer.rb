@@ -64,8 +64,6 @@ class Recognizer
 
     @queue = Queue.new
     
-    # This returns when ASR engine has been fully loaded
-    @asr.set_property('configured', true)
     
     @asr.signal_connect('partial_result') { |asr, text, uttid|
         #puts "PARTIAL: " + text
