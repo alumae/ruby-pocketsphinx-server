@@ -87,6 +87,8 @@ def do_post()
 end
 
 error do
+    puts "Error: " + env['sinatra.error']
+    RECOGNIZER.stop
     'Sorry, failed to process request. Reason: ' + env['sinatra.error'] + "\n"
 end
 
