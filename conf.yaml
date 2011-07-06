@@ -1,8 +1,8 @@
 pocketsphinx:
     hmm: models/est16k.cd_cont_3000
     dict: models/jutusaated.swwp2.dict
-#    lm: models/sphinx-trigram.jutusaated.swwp2.arpa.gz
-    fsg: tmp/goforward.fsg
+    lm: models/sphinx-trigram.jutusaated.swwp2.arpa.gz
+#    fsg: tmp/goforward.fsg
     bestpath: false
     fwdflat: false
     maxhmmpf: 1000

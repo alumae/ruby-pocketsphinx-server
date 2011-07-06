@@ -130,9 +130,8 @@ class Recognizer
   end  
   
   def stop
-    @pipeline.play
+    #@pipeline.play
     appsrc.end_of_stream
-    @data_buffers.clear
-    @pipeline.ready
+    wait_final_result    
   end
 end

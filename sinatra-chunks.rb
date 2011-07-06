@@ -88,7 +88,9 @@ end
 
 error do
     puts "Error: " + env['sinatra.error']
+    puts "Trying to clear recognizer.."
     RECOGNIZER.stop
+    puts "Cleared recognizer"
     'Sorry, failed to process request. Reason: ' + env['sinatra.error'] + "\n"
 end
 
