@@ -37,7 +37,7 @@ Record a sentence to a wav file, in mono (hit Ctrl-C when done speaking):
  
 Send it to the web service:
 
- curl   -X POST --data-binary @lause.wav -H "Content-Type: audio/x-wav"  http://localhost:8080
+ curl   -X POST --data-binary @lause.wav -H "Content-Type: audio/x-wav"  http://localhost:8080/recognize
 
 Output (encoded using json):
 
@@ -61,13 +61,51 @@ Record a raw file using arecord:
 
 Send it to web service:
  
- curl -X POST --data-binary @senrence.raw -H "Content-Type: audio/x-raw-int; rate=16000"  http://localhost:8080
+ curl -X POST --data-binary @senrence.raw -H "Content-Type: audio/x-raw-int; rate=16000"  http://localhost:8080/recognize
  
 == Example 3
 
 Record a 5 second audio, pipe it to curl, which streams it directly to web service using PUT (and gets almost instant response):
 
- arecord --format=S16_LE --file-type raw --channels 1 --rate 16000 --duration 5 | curl -vv -T - -H "Content-Type: audio/x-raw-int; rate=16000"  http://localhost:8080
+ arecord --format=S16_LE --file-type raw --channels 1 --rate 16000 --duration 5 | curl -vv -T - -H "Content-Type: audio/x-raw-int; rate=16000"  http://localhost:8080/recognize
  
  
+= Support for user grammars
+
+Users can now use their own grammars to recognuze certain sentences. The grammars should be in JSGF format.
+
+Example JSGF (let's call it robot.jsgf)
+
+ #JSGF V1.0;
+  
+ grammar robot;
+   
+ public <command> = (liigu | mine ) [ ( üks | kaks | kolm | neli | viis ) meetrit ] (edasi | tagasi);
+ 
+You need to upload the JSGF file to somewhere where the server can fetch it, let's say http://www.example.com/robot.txt
+ 
+Now, let the server download and compile it:
+
+ curl -vv  http://localhost:8080/fetch-jsgf?lm=http://www.phon.ioc.ee/~tanela/tmp/robot.jsgf
+
+This should result in HTTP/1.1 200 OK.
+
+Now you can use the grammar to recognize a sentence that is accepted by the grammar:
+
+ arecord --format=S16_LE --file-type raw --channels 1 --rate 16000 --duration 5 | \
+ curl -vv -T - -H "Content-Type: audio/x-raw-int; rate=16000"  http://localhost:8080/recognize?lm=http://www.phon.ioc.ee/~tanela/tmp/robot.jsgf
+
+Result:
+ 
+ {
+   "status": 0,
+   "hypotheses": [
+     {
+       "utterance": "mine viis meetrit tagasi"
+     }
+   ],
+   "id": "9e3895e9ee0b5138e73c6fca30f51a58"
+ }
+
+
 

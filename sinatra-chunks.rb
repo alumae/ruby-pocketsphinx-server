@@ -123,7 +123,7 @@ end
 
 error do
     puts "Error: " + env['sinatra.error']
-    if @use_rec.recognizing
+    if @use_rec != nil and @use_rec.recognizing
       puts "Trying to clear recognizer.."
       @use_rec.stop
       puts "Cleared recognizer"
@@ -163,6 +163,7 @@ def prettify(hyp)
 end
 
 get '/fetch-jsgf' do 
+  req = Rack::Request.new(env)
   url = req.params['lm']  
   puts "Fetching JSGF grammar from #{url}"
   digest = MD5.hexdigest url
