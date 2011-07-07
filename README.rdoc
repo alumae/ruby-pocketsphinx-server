@@ -82,7 +82,7 @@ Example JSGF (let's call it robot.jsgf)
    
  public <command> = (liigu | mine ) [ ( üks | kaks | kolm | neli | viis ) meetrit ] (edasi | tagasi);
  
-NB! Garmmars should be in the same charset that the server is using for dictionary, which currently is latin-1 (sorry for that). 
+NB! Grammars should be in the same charset that the server is using for dictionary, which currently is latin-1 (sorry for that). 
  
 You need to upload the JSGF file to somewhere where the server can fetch it, let's say http://www.example.com/robot.txt
  
