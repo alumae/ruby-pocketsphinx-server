@@ -88,7 +88,7 @@ You need to upload the JSGF file to somewhere where the server can fetch it, let
  
 Now, let the server download and compile it:
 
- curl -vv  http://localhost:8080/fetch-jsgf?lm=http://www.phon.ioc.ee/~tanela/tmp/robot.jsgf
+ curl -vv  http://localhost:8080/fetch-jsgf?lm=http://www.example.com/robot.jsgf
 
 This should result in HTTP/1.1 200 OK.
 
