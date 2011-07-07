@@ -109,5 +109,5 @@ Result:
    "id": "9e3895e9ee0b5138e73c6fca30f51a58"
  }
 
-
-
+If you update the grammar on the server, you need to make the /fetch-jsgf request again, as the server doesn't check for changes every time
+a recognition request is done (for efficiency reasons).
