@@ -9,6 +9,7 @@ class Recognizer
   attr :asr
   attr :clock
   attr :appsink
+  attr :recognizing
          
   def initialize(config={})
     @data_buffers = []
@@ -45,6 +46,7 @@ class Recognizer
     end
 
     create_pipeline()
+    recognizing = false
   end
 
 
@@ -113,6 +115,7 @@ class Recognizer
     # HACK: we need to reference the buffer so that ruby won't overwrite it
     @data_buffers.push my_data
     pipeline.play
+    recognizing = true
   end
   
   # Notify recognizer of utterance end
@@ -126,6 +129,7 @@ class Recognizer
     queue.pop
     @pipeline.ready
     @data_buffers.clear
+    recognizing = false
     return result
   end  
   
@@ -133,5 +137,11 @@ class Recognizer
     #@pipeline.play
     appsrc.end_of_stream
     wait_final_result    
+  end
+  
+  def set_fsg_file(fsg_file)
+    puts "Trying to use FSG #{fsg_file}"
+    @asr.set_property('fsg', fsg_file)
+    @asr.set_property('configured', true)    
   end
 end
