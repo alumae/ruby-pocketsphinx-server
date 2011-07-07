@@ -72,7 +72,7 @@ Record a 5 second audio, pipe it to curl, which streams it directly to web servi
  
 = Support for user grammars
 
-Users can now use their own grammars to recognuze certain sentences. The grammars should be in JSGF format.
+Users can now use their own grammars to recognize certain sentences. The grammars should be in JSGF format.
 
 Example JSGF (let's call it robot.jsgf)
 
@@ -95,7 +95,7 @@ This should result in HTTP/1.1 200 OK.
 Now you can use the grammar to recognize a sentence that is accepted by the grammar:
 
  arecord --format=S16_LE --file-type raw --channels 1 --rate 16000 --duration 5 | \
- curl -vv -T - -H "Content-Type: audio/x-raw-int; rate=16000"  http://localhost:8080/recognize?lm=http://www.phon.ioc.ee/~tanela/tmp/robot.jsgf
+ curl -vv -T - -H "Content-Type: audio/x-raw-int; rate=16000"  http://localhost:8080/recognize?lm=http://www.example.com/robot.jsgf
 
 Result:
  
