@@ -11,13 +11,8 @@ require 'md5'
 configure do
   $config = {}
   $config = YAML.load_file('conf.yaml')
-  RECOGNIZER = Recognizer.new($config)
-  
-  fsg_config = $config.clone
-  fsg_config['pocketsphinx'].delete('lm')
-  # we need to load dummy FSG to avoid segfault later
-  fsg_config['pocketsphinx']['fsg'] = 'dummy.fsg'
-  FSG_RECOGNIZER = Recognizer.new(fsg_config)
+  RECOGNIZER = Recognizer.new($config, 'pocketsphinx.ngram')
+  FSG_RECOGNIZER = Recognizer.new($config, 'pocketsphinx.fsg')
   
   $prettifier = nil
   if $config['prettifier'] != nil

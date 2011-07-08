@@ -11,7 +11,7 @@ class Recognizer
   attr :appsink
   attr :recognizing
          
-  def initialize(config={})
+  def initialize(config={}, rec_config_name='')
     @data_buffers = []
     @clock = Gst::SystemClock.new
     @result = ""
@@ -34,10 +34,10 @@ class Recognizer
     @appsink = Gst::ElementFactory.make "appsink", "appsink"
 
     @filesink.set_property("location", "/dev/null")
-
-    pocketsphinx_config = config['pocketsphinx']
-    if  pocketsphinx_config != nil
-      pocketsphinx_config.map{ |k,v|
+    
+    rec_config = config[rec_config_name]
+    if rec_config != nil
+      rec_config.map{ |k,v|
         puts "Setting #{k} to #{v}..."
         @asr.set_property(k, v) 
       }
