@@ -12,8 +12,8 @@ pocketsphinx.fsg:
     hmm: models/est16k.cd_cont_3000
     dict: models/jutusaated.swwp2.dict
     fsg: dummy.fsg
-    bestpath: false
-    fwdflat: false
+    bestpath: true
+    fwdflat: true
     beam: 1.0e-60
     pbeam: 1.0e-40
     wbeam: 1.0e-40
