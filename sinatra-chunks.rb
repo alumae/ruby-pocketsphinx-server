@@ -26,6 +26,7 @@ configure do
   rescue
   end
   
+  
   CHUNK_SIZE = 4*1024
 end
 
@@ -74,6 +75,13 @@ def do_post()
     }
   end
   puts "User agent: " + req.user_agent
+  device_id = get_user_device_id(req.user_agent)
+  puts "Device ID : #{device_id}"
+  cmn_mean = get_cmn_mean(device_id)
+  if cmn_mean != nil
+    @use_rec.set_cmn_mean(cmn_mean)
+  end
+    
   puts "Parsing content type " + req.content_type
   caps_str = content_type_to_caps(req.content_type)
   puts "CAPS string is " + caps_str
@@ -100,6 +108,8 @@ def do_post()
   if length > 0
     @use_rec.feed_end()
     result = @use_rec.wait_final_result()
+    set_cmn_mean(device_id, @use_rec.get_cmn_mean())
+    
     puts "RESULT:" + result
     # only prettify results decoded using ngram
     if @use_rec == RECOGNIZER
@@ -180,3 +190,32 @@ def fsg_file_from_url(url)
   return $config.fetch('grammar-dir', 'user_grammars') + "/#{digest}.fsg"
 end
 
+
+def get_user_device_id(user_agent)
+  # try to identify android device
+  if user_agent =~ /.*\(RecognizerIntentActivity.* (\d+); .*/
+    return $1
+  end
+  return "default"
+end
+
+def get_cmn_mean(device_id)
+  cmn_means = {}
+  begin
+    cmn_means = YAML.load_file('cmn_means.yaml')
+  rescue
+  end
+  return cmn_means.fetch(device_id, nil)
+end 
+
+def set_cmn_mean(device_id, mean)
+  cmn_means = {}
+  begin
+    cmn_means = YAML.load_file('cmn_means.yaml')
+  rescue
+  end
+  cmn_means[device_id] = mean
+  File.open('cmn_means.yaml', 'w' ) do |out|
+    YAML.dump( cmn_means, out )
+  end
+end

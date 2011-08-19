@@ -105,6 +105,14 @@ class Recognizer
     @filesink.set_state(Gst::State::PLAYING)
   end  
   
+  def set_cmn_mean(mean)
+    @asr.set_property("cmn_mean", mean)
+  end
+
+  def get_cmn_mean()
+    return @asr.get_property("cmn_mean")
+  end
+
   # Feed new chunk of audio data to the recognizer
   def feed_data(data)
     buffer = Gst::Buffer.new
@@ -130,6 +138,7 @@ class Recognizer
     @pipeline.ready
     @data_buffers.clear
     recognizing = false
+    puts "CMN mean after: #{@asr.get_property("cmn_mean")}"
     return result
   end  
   
