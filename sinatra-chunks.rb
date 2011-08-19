@@ -79,6 +79,7 @@ def do_post()
   puts "Device ID : #{device_id}"
   cmn_mean = get_cmn_mean(device_id)
   if cmn_mean != nil
+    puts "Setting CMN mean to #{cmn_mean}"
     @use_rec.set_cmn_mean(cmn_mean)
   end
     
