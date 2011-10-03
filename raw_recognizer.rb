@@ -148,9 +148,11 @@ class Recognizer
     wait_final_result    
   end
   
-  def set_fsg_file(fsg_file)
+  def set_fsg(fsg_file, dict_file)
     puts "Trying to use FSG #{fsg_file}"
     @asr.set_property('fsg', fsg_file)
+    puts "Trying to use dict #{dict_file}"
+    @asr.set_property('dict', dict_file)    
     @asr.set_property('configured', true)    
   end
 end

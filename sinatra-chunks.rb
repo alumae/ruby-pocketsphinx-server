@@ -56,12 +56,15 @@ def do_post()
   if lm_name != nil and lm_name != ""  
     puts "Using FSG recognizer"  
     @use_rec = FSG_RECOGNIZER
+    dict_file = dict_file_from_url(lm_name)
     fsg_file = fsg_file_from_url(lm_name)
-    if File.exists? fsg_file
-      @use_rec.set_fsg_file(fsg_file)
-    else
+    if not File.exists? fsg_file
       raise IOError, "Language model #{lm_name} not available. Use /fetch-jsgf API call to upload it to the server"
     end
+    if not File.exists? dict_file
+      raise IOError, "Pronunciation dictionary for #{lm_name} not available. Use /fetch-jsgf API call to make it on the server"
+    end
+    @use_rec.set_fsg(fsg_file, dict_file)      
   else
     puts "Using ngram recognizer"
     @use_rec = RECOGNIZER
@@ -176,19 +179,31 @@ get '/fetch-jsgf' do
   content = open(url).read
   jsgf_file =  $config.fetch('grammar-dir', 'user_grammars') + "/#{digest}.jsgf"
   fsg_file =  fsg_file_from_url(url)
+  dict_file =  dict_file_from_url(url)
   File.open(jsgf_file, 'w') { |f|
     f.write(content)
   }
-  puts "Converting to FSG"
+  puts "Converting to FSG.."
   `sphinx_jsgf2fsg -jsgf #{jsgf_file} -fsg #{fsg_file}`
   if $? != 0
     raise "Failed to convert JSGF to FSG" 
   end
+  puts "Making dictionary.."
+  `cat #{fsg_file} | #{$config.fetch('fsg-to-dict')} > #{dict_file}`
+  if $? != 0
+    raise "Failed to make dictionary from FSG" 
+  end
+  
 end
 
 def fsg_file_from_url(url)
   digest = MD5.hexdigest url
   return $config.fetch('grammar-dir', 'user_grammars') + "/#{digest}.fsg"
+end
+
+def dict_file_from_url(url)
+  digest = MD5.hexdigest url
+  return $config.fetch('grammar-dir', 'user_grammars') + "/#{digest}.dict"
 end
 
 

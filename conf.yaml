@@ -14,9 +14,9 @@ pocketsphinx.fsg:
     fsg: dummy.fsg
     bestpath: true
     fwdflat: true
-    beam: 1.0e-60
-    pbeam: 1.0e-40
-    wbeam: 1.0e-40
+    beam: 1.0e-65
+    pbeam: 1.0e-37
+    wbeam: 1.0e-29
 
 
 
@@ -25,3 +25,5 @@ prettifier: ./prettify-with-numbers.sh
 logging:
     request-debug: out
     
+
+fsg-to-dict: ./fsg-to-dict.sh
