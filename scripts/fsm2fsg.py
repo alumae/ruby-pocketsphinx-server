@@ -11,7 +11,7 @@ if __name__ == '__main__':
   for l in sys.stdin:
     ss = l.split()
     if len(ss) == 5:
-      arcs.append((int(ss[0]), int(ss[1]), ss[2], 1)
+      arcs.append((int(ss[0]), int(ss[1]), ss[2], 1))
     elif len(ss) == 4:
       arcs.append((int(ss[0]), int(ss[1]), ss[2], 1))
     elif len(ss) == 2:
