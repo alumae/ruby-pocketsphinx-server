@@ -193,7 +193,7 @@ get '/fetch-jsgf' do
   if $? != 0
     raise "Failed to make dictionary from FSG" 
   end
-  
+  "Request completed"
 end
 
 def fsg_file_from_url(url)
