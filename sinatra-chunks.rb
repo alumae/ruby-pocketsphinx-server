@@ -184,7 +184,7 @@ get '/fetch-jsgf' do
     f.write(content)
   }
   puts "Converting to FSG.."
-  `sphinx_jsgf2fsg -jsgf #{jsgf_file} -fsg #{fsg_file}`
+  `#{$config.fetch('jsgf-to-fsg')} #{jsgf_file} #{fsg_file}`
   if $? != 0
     raise "Failed to convert JSGF to FSG" 
   end
