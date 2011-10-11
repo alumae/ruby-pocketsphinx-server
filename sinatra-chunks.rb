@@ -7,6 +7,7 @@ require 'set'
 require 'yaml'
 require 'open-uri'
 require 'md5'
+require 'uri'
 
 configure do
   $config = {}
@@ -53,18 +54,46 @@ def do_post()
   lm_name = req.params['lm']
   puts "Client requests to use lm=#{lm_name}"
   
+  output_lang = ""
+  pgf_dir = ""
+  pgf_basename = ""
+  input_lang = ""
+  
   if lm_name != nil and lm_name != ""  
+    lm_type = req.params['lm-type']
     puts "Using FSG recognizer"  
     @use_rec = FSG_RECOGNIZER
-    dict_file = dict_file_from_url(lm_name)
-    fsg_file = fsg_file_from_url(lm_name)
-    if not File.exists? fsg_file
-      raise IOError, "Language model #{lm_name} not available. Use /fetch-jsgf API call to upload it to the server"
-    end
-    if not File.exists? dict_file
-      raise IOError, "Pronunciation dictionary for #{lm_name} not available. Use /fetch-jsgf API call to make it on the server"
-    end
-    @use_rec.set_fsg(fsg_file, dict_file)      
+		if lm_name =~ /jsgf$/
+		  puts "Using JSGF-based grammar"
+			dict_file = dict_file_from_url(lm_name)
+			fsg_file = fsg_file_from_url(lm_name)
+			if not File.exists? fsg_file
+				raise IOError, "Language model #{lm_name} not available. Use /fetch-jsgf API call to upload it to the server"
+			end
+			if not File.exists? dict_file
+				raise IOError, "Pronunciation dictionary for #{lm_name} not available. Use /fetch-jsgf API call to make it on the server"
+			end
+			@use_rec.set_fsg(fsg_file, dict_file)      
+		elsif lm_name =~ /pgf$/
+		  puts "Using GF-based grammar"
+		  input_lang = req.params['input-lang']
+		  if input_lang == nil
+		    input_lang = $config.fetch('gf', {}).fetch('default_input_lang', 'Est')
+		  end
+		  output_lang = req.params['output-lang']
+			digest = MD5.hexdigest lm_name
+      pgf_dir = $config.fetch('gf', {}).fetch('grammar-dir', 'user_gfs') + '/' + digest
+      pgf_basename = File.basename(URI.parse(lm_name).path, ".pgf")
+  	  fsg_file = pgf_dir + '/' + pgf_basename + input_lang + ".fsg"
+	    dict_file = pgf_dir + '/' + pgf_basename + input_lang + ".dict"
+			if not File.exists? fsg_file
+				raise IOError, "Grammar for lang #{lang} for #{lm_name} not available. Use /fetch-pgf API call to upload it to the server"
+			end
+			if not File.exists? dict_file
+				raise IOError, "Pronunciation dictionary  for lang #{lang} for #{lm_name} not available. Use /fetch-pgf API call to make it on the server"
+			end
+			@use_rec.set_fsg(fsg_file, dict_file)      
+		end
   else
     puts "Using ngram recognizer"
     @use_rec = RECOGNIZER
@@ -120,9 +149,36 @@ def do_post()
       result = prettify(result)
       puts "PRETTY RESULT:" + result                          
     end
+    linearizations = nil
+		if lm_name != nil and lm_name =~ /pgf$/
+			output_langs = req.params['output-lang']
+			if output_langs != nil
+			  linearizations = []
+			  output_langs.split(",").each do |output_lang|
+			    puts "Linearizing result to lang #{output_lang}"
+			    outputs = `echo "parse -lang=#{pgf_basename + input_lang} \\"#{result}\\" | linearize -lang=#{pgf_basename + output_lang}" | gf --run #{pgf_dir + '/' + pgf_basename + '.pgf'}`
+			    
+			    outputs.split("\n").each do |output|
+			      if output != ""
+						  linearizations.push({:output => output, :lang => output_lang})
+						end
+			    end
+			    
+			  end
+			end
+		end
+    
     result = Iconv.iconv('utf-8', 'latin1', result)[0]
+
+    
+    
+    
     headers "Content-Type" => "application/json; charset=utf-8", "Content-Disposition" => "attachment"
-    JSON.pretty_generate({:status => 0, :id => id, :hypotheses => [:utterance => result]})
+    if linearizations != nil
+			JSON.pretty_generate({:status => 0, :id => id, :hypotheses => [{:utterance => result, :linearizations => linearizations}]})
+		else
+		  JSON.pretty_generate({:status => 0, :id => id, :hypotheses => [{:utterance => result}]})
+		end
   else
     @use_rec.stop
     headers "Content-Type" => "application/json; charset=utf-8", "Content-Disposition" => "attachment"
@@ -174,6 +230,9 @@ end
 get '/fetch-jsgf' do 
   req = Rack::Request.new(env)
   url = req.params['lm']  
+  if url == nil
+    url = req.params['url']  
+  end
   puts "Fetching JSGF grammar from #{url}"
   digest = MD5.hexdigest url
   content = open(url).read
@@ -195,6 +254,58 @@ get '/fetch-jsgf' do
   end
   "Request completed"
 end
+
+get '/fetch-pgf' do
+  req = Rack::Request.new(env)
+  url = req.params['url']  
+  input_langs = req['lang']
+  if input_langs == nil
+     input_langs = $config.fetch('gf', {}).fetch('default_input_lang', 'Est')
+  end
+  puts "Fetching PGF from #{url}"
+  digest = MD5.hexdigest url
+  content = open(url).read
+  pgf_dir = $config.fetch('gf', {}).fetch('grammar-dir', 'user_gfs') + '/' + digest
+  FileUtils.mkdir_p pgf_dir
+  pgf_basename = File.basename(URI.parse(url).path, ".pgf")
+  File.open(pgf_dir + '/' + pgf_basename + ".pgf", 'w') { |f|
+    f.write(content)
+  }
+  puts 'Extracting concrete grammars'
+  `gf -make --output-format=jsgf --output-dir=#{pgf_dir} #{pgf_dir + '/' + pgf_basename + ".pgf"}` 
+  if $? != 0
+    raise "Failed to make extract JSGF from PFG" 
+  end
+
+	input_langs.split(',').each do |lang|
+	  jsgf_file = pgf_dir + '/' + pgf_basename + lang + ".jsgf"
+	  fsg_file = pgf_dir + '/' + pgf_basename + lang + ".fsg"
+	  dict_file = pgf_dir + '/' + pgf_basename + lang + ".dict"
+	  puts "Making finite state grammar for input language #{lang}"
+	  puts "Converting JSGF.."
+	  `./scripts/convert-gf-jsgf.sh #{jsgf_file}`
+    if $? != 0
+      raise "Failed to convert JSGF for lang #{lang}" 
+    end
+    puts "Converting to FSG.."
+    `#{$config.fetch('jsgf-to-fsg')} #{jsgf_file} #{fsg_file}`
+    if $? != 0
+      raise "Failed to convert JSGF to FSG for lang #{lang}" 
+    end
+    puts "Making dictionary.."
+    `cat #{fsg_file} | #{$config.fetch('fsg-to-dict')} > #{dict_file}`
+    if $? != 0
+      raise "Failed to make dictionary from FSG for lang #{lang}" 
+    end
+	   
+	end
+
+  "Request completed"
+end
+  
+  
+
+
 
 def fsg_file_from_url(url)
   digest = MD5.hexdigest url
