@@ -70,7 +70,7 @@ Record a 5 second audio, pipe it to curl, which streams it directly to web servi
  arecord --format=S16_LE --file-type raw --channels 1 --rate 16000 --duration 5 | curl -vv -T - -H "Content-Type: audio/x-raw-int; rate=16000"  http://localhost:8080/recognize
  
  
-= Support for user grammars
+= Support for JSGF grammars
 
 Users can now use their own grammars to recognize certain sentences. The grammars should be in JSGF format.
 
@@ -111,3 +111,45 @@ Result:
 
 If you update the grammar on the server, you need to make the /fetch-jsgf request again, as the server doesn't check for changes every time
 a recognition request is done (for efficiency reasons).
+
+= Support for GF grammars
+
+GF (Grammatical Framework) grammars are now supported. 
+
+A GF grammar must be compiled into a .pgf file. To upload it to the server, use the fetch-pgf API call, e.g.:
+  
+  curl "http://bark.phon.ioc.ee/speech-api/v1/fetch-pgf?url=http://kaljurand.github.com/Grammars/grammars/pgf/Calc.pgf&lang=Est"
+  
+The 'lang' attribute (defaults to 'Est') specifies input languages of the grammar. Many comma-seperated languages can be specified, e.g lang=Est,Est2
+
+To recognize with a GF, use similar request as with JSGF, e.g.:
+
+  arecord --format=S16_LE --file-type raw --channels 1 --rate 16000 --duration 5 | curl -vv -T - -H "Content-Type: audio/x-raw-int; rate=16000"  "http://localhost:8080/recognize?lm=http://kaljurand.github.com/Grammars/grammars/pgf/Calc.pgf
+  
+You can also specify output language(s) that will be used to linearize the raw recognition result, e.g.:
+ 
+ arecord --format=S16_LE --file-type raw --channels 1 --rate 16000 --duration 5 | curl -vv -T - -H "Content-Type: audio/x-raw-int; rate=16000"  "http://localhost:8080/recognize?lm=http://kaljurand.github.com/Grammars/grammars/pgf/Calc.pgf&output-lang=App"
+ 
+Output:
+
+ {
+  "status": 0,
+  "hypotheses": [
+    {
+      "utterance": "viis minutit sekundites",
+      "linearizations": [
+        {
+          "lang": "App",
+          "output": "5 ' IN \""
+        },
+        {
+          "lang": "App",
+          "output": "5 min IN s"
+        }
+      ]
+    }
+  ],
+  "id": "83486feaca30995401ed4a66951a3f23"
+ }
+  
+Multiple output languages can be used (not tested), by using comma-speperated values: "..&output-lang=App,App2"
