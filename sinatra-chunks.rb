@@ -149,7 +149,7 @@ def do_post()
       result = prettify(result)
       puts "PRETTY RESULT:" + result                          
     end
-    linearizations = nil
+    linearizations = []
 		if lm_name != nil and lm_name =~ /pgf$/
 			output_langs = req.params['output-lang']
 			if output_langs != nil
@@ -169,6 +169,10 @@ def do_post()
 		end
     
     result = Iconv.iconv('utf-8', 'latin1', result)[0]
+    linearizations.each do |l|
+			l[:output] =  Iconv.iconv('utf-8', 'latin1', l[:output])[0]
+		end
+		
 
     
     
