@@ -156,10 +156,11 @@ def do_post()
 			  linearizations = []
 			  output_langs.split(",").each do |output_lang|
 			    puts "Linearizing result to lang #{output_lang}"
-			    outputs = `echo "parse -lang=#{pgf_basename + input_lang} \\"#{result}\\" | linearize -lang=#{pgf_basename + output_lang}" | gf --run #{pgf_dir + '/' + pgf_basename + '.pgf'}`
+			    outputs = `echo "parse -lang=#{pgf_basename + input_lang} \\"#{result}\\" | linearize -lang=#{pgf_basename + output_lang} | ps -bind" | gf --run #{pgf_dir + '/' + pgf_basename + '.pgf'}`
 			    
 			    outputs.split("\n").each do |output|
 			      if output != ""
+							puts "LINEARIZED RESULT: " + output
 						  linearizations.push({:output => output, :lang => output_lang})
 						end
 			    end
@@ -278,7 +279,7 @@ get '/fetch-pgf' do
   puts 'Extracting concrete grammars'
   `gf -make --output-format=jsgf --output-dir=#{pgf_dir} #{pgf_dir + '/' + pgf_basename + ".pgf"}` 
   if $? != 0
-    raise "Failed to make extract JSGF from PFG" 
+    raise "Failed to extract JSGF from PGF" 
   end
 
 	input_langs.split(',').each do |lang|
