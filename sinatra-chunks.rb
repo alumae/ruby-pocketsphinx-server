@@ -325,7 +325,7 @@ end
 
 def get_user_device_id(user_agent)
   # try to identify android device
-  if user_agent =~ /.*\(RecognizerIntentActivity.* (\d+); .*/
+  if user_agent =~ /.*\(RecognizerIntentActivity.* (\w+); .*/
     return $1
   end
   return "default"
