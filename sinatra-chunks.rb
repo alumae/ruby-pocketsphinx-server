@@ -52,6 +52,7 @@ def do_post()
   puts headers
   
   lm_name = req.params['lm']
+  nbest_n = 5
   puts "Client requests to use lm=#{lm_name}"
   
   output_lang = ""
@@ -140,50 +141,66 @@ def do_post()
   puts "Got feed end"
   if length > 0
     @use_rec.feed_end()
-    result = @use_rec.wait_final_result()
+    result,nbest = @use_rec.wait_final_result()
     set_cmn_mean(device_id, @use_rec.get_cmn_mean())
     
-    puts "RESULT:" + result
+    nbest_results = []
+    
     # only prettify results decoded using ngram
     if @use_rec == RECOGNIZER
-      result = prettify(result)
-      puts "PRETTY RESULT:" + result                          
+			nbest[0..nbest_n-1].each { |hyp| 
+				puts "RESULT:" + hyp
+				result = prettify(hyp)
+				puts "PRETTY RESULT:" + result                 
+				nbest_results << {:utterance => result}
+			}
+    else
+			nbest[0..nbest_n-1].each do |hyp| 
+				puts "RESULT:" + hyp
+				nbest_results << {:utterance => hyp}
+			end
     end
+    
     linearizations = []
 		if lm_name != nil and lm_name =~ /pgf$/
 			output_langs = req.params['output-lang']
 			if output_langs != nil
-			  linearizations = []
-			  output_langs.split(",").each do |output_lang|
-			    puts "Linearizing result to lang #{output_lang}"
-			    outputs = `echo "parse -lang=#{pgf_basename + input_lang} \\"#{result}\\" | linearize -lang=#{pgf_basename + output_lang} | ps -bind" | gf --run #{pgf_dir + '/' + pgf_basename + '.pgf'}`
-			    
-			    outputs.split("\n").each do |output|
-			      if output != ""
-							puts "LINEARIZED RESULT: " + output
-						  linearizations.push({:output => output, :lang => output_lang})
+			  nbest_results.each do |nbest_result| 
+					linearizations = []
+					output_langs.split(",").each do |output_lang|
+						puts "Linearizing result to lang #{output_lang}"
+						outputs = `echo "parse -lang=#{pgf_basename + input_lang} \\"#{nbest_result[:utterance]}\\" | linearize -lang=#{pgf_basename + output_lang} | ps -bind" | gf --run #{pgf_dir + '/' + pgf_basename + '.pgf'}`
+						outputs.split("\n").each do |output|
+							if output != ""
+								puts "LINEARIZED RESULT: " + output
+								linearizations.push({:output => output, :lang => output_lang})
+							end
 						end
-			    end
-			    
-			  end
+					end
+					nbest_result[:linearizations] = linearizations
+				end
 			end
 		end
     
-    result = Iconv.iconv('utf-8', 'latin1', result)[0]
-    linearizations.each do |l|
-			l[:output] =  Iconv.iconv('utf-8', 'latin1', l[:output])[0]
-		end
+    
+    #result = Iconv.iconv('utf-8', 'latin1', result)[0]
+    #linearizations.each do |l|
+		#	l[:output] =  Iconv.iconv('utf-8', 'latin1', l[:output])[0]
+		#end
 		
-
+		nbest_results.each do |nbest_result|
+			nbest_result[:utterance] = Iconv.iconv('utf-8', 'latin1', nbest_result[:utterance])[0]
+			if nbest_result.has_key?(:linearizations)
+				nbest_result[:linearizations].each do |linearization| 
+					linearization[:output] = Iconv.iconv('utf-8', 'latin1', linearization[:output])[0]
+				end
+			end
+		end
     
     
     
     headers "Content-Type" => "application/json; charset=utf-8", "Content-Disposition" => "attachment"
-    if linearizations != nil
-			JSON.pretty_generate({:status => 0, :id => id, :hypotheses => [{:utterance => result, :linearizations => linearizations}]})
-		else
-		  JSON.pretty_generate({:status => 0, :id => id, :hypotheses => [{:utterance => result}]})
-		end
+	  JSON.pretty_generate({:status => 0, :id => id, :hypotheses => nbest_results})
   else
     @use_rec.stop
     headers "Content-Type" => "application/json; charset=utf-8", "Content-Disposition" => "attachment"

@@ -135,11 +135,13 @@ class Recognizer
   # Returns the final recognition result
   def wait_final_result
     queue.pop
+    nbest = @asr.get_property("nbest")
+    nbest.uniq!
     @pipeline.ready
     @data_buffers.clear
     @recognizing = false
     puts "CMN mean after: #{@asr.get_property("cmn_mean")}"
-    return result
+    return result, nbest
   end  
   
   def stop
