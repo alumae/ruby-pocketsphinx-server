@@ -15,7 +15,8 @@ class Recognizer
     @data_buffers = []
     @clock = Gst::SystemClock.new
     @result = ""
-    
+    @recognizing = false
+
     @outdir = nil
     begin
       @outdir = config.fetch('logging', {}).fetch('request-debug', '')
@@ -46,7 +47,6 @@ class Recognizer
     end
 
     create_pipeline()
-    recognizing = false
   end
 
 
@@ -123,7 +123,7 @@ class Recognizer
     # HACK: we need to reference the buffer so that ruby won't overwrite it
     @data_buffers.push my_data
     pipeline.play
-    recognizing = true
+    @recognizing = true
   end
   
   # Notify recognizer of utterance end
@@ -137,7 +137,7 @@ class Recognizer
     queue.pop
     @pipeline.ready
     @data_buffers.clear
-    recognizing = false
+    @recognizing = false
     puts "CMN mean after: #{@asr.get_property("cmn_mean")}"
     return result
   end  
@@ -157,4 +157,8 @@ class Recognizer
     @asr.set_property('configured', true)    
     puts "FSG configured"
   end
+  
+  def is_recognizing?()
+		@recognizing
+	end
 end

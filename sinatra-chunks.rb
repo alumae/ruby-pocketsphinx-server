@@ -87,10 +87,10 @@ def do_post()
   	  fsg_file = pgf_dir + '/' + pgf_basename + input_lang + ".fsg"
 	    dict_file = pgf_dir + '/' + pgf_basename + input_lang + ".dict"
 			if not File.exists? fsg_file
-				raise IOError, "Grammar for lang #{lang} for #{lm_name} not available. Use /fetch-pgf API call to upload it to the server"
+				raise IOError, "Grammar for lang #{input_lang} for #{lm_name} not available. Use /fetch-pgf API call to upload it to the server"
 			end
 			if not File.exists? dict_file
-				raise IOError, "Pronunciation dictionary  for lang #{lang} for #{lm_name} not available. Use /fetch-pgf API call to make it on the server"
+				raise IOError, "Pronunciation dictionary  for lang #{input_lang} for #{lm_name} not available. Use /fetch-pgf API call to make it on the server"
 			end
 			@use_rec.set_fsg(fsg_file, dict_file)      
 		end
@@ -193,7 +193,7 @@ end
 
 error do
     puts "Error: " + env['sinatra.error']
-    if @use_rec != nil and @use_rec.recognizing
+    if @use_rec != nil and @use_rec.is_recognizing?
       puts "Trying to clear recognizer.."
       @use_rec.stop
       puts "Cleared recognizer"
