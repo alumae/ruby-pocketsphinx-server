@@ -53,6 +53,9 @@ def do_post()
   
   lm_name = req.params['lm']
   nbest_n = 5
+  if req.params.has_key? 'nbest'
+    nbest_n = req.params['nbest'].to_i
+  end
   puts "Client requests to use lm=#{lm_name}"
   
   output_lang = ""
