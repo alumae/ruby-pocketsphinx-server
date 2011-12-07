@@ -7,6 +7,10 @@ pocketsphinx.ngram:
     fwdflat: false
     maxhmmpf: 1000
     maxwpf: 50
+    beam: 1.0e-80
+    wbeam: 1.0e-45
+    pbeam: 1.0e-70
+
 
 pocketsphinx.fsg:
     hmm: models/est16k.cd_cont_3000
@@ -29,3 +33,9 @@ logging:
 jsgf-to-fsg: ./scripts/jsgf2fsg.sh
 
 fsg-to-dict: ./fsg-to-dict.sh
+
+# Request throttling: enforces limits based on user IP
+throttling:
+    max-daily: 200
+    max-hourly: 100
+    min-interval: 2

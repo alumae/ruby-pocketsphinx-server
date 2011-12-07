@@ -160,7 +160,7 @@ class Recognizer
     puts "FSG configured"
   end
   
-  def is_recognizing?()
+  def recognizing?()
 		@recognizing
 	end
 end

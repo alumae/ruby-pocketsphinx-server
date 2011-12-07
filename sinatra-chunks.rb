@@ -8,6 +8,8 @@ require 'yaml'
 require 'open-uri'
 require 'md5'
 require 'uri'
+require 'rack/throttle'
+require 'gdbm'
 
 configure do
   $config = {}
@@ -27,8 +29,12 @@ configure do
   rescue
   end
   
-  
   CHUNK_SIZE = 4*1024
+  
+  use Rack::Throttle::Daily,   :max =>  $config.fetch('throttling.max-daily', 1000)
+  use Rack::Throttle::Hourly,   :max => $config.fetch('throttling.max-hourly', 100)
+  use Rack::Throttle::Interval, $config.fetch('throttling.min-interval', 1)
+  use Rack::Throttle::Interval, :cache => GDBM.new('throttle.db')
 end
 
 post '/recognize' do
@@ -152,6 +158,9 @@ def do_post()
     # only prettify results decoded using ngram
     if @use_rec == RECOGNIZER
 			nbest[0..nbest_n-1].each { |hyp| 
+                if hyp.nil?
+                    hyp = ""
+                end
 				puts "RESULT:" + hyp
 				result = prettify(hyp)
 				puts "PRETTY RESULT:" + result                 
@@ -159,6 +168,9 @@ def do_post()
 			}
     else
 			nbest[0..nbest_n-1].each do |hyp| 
+                if hyp.nil?
+                    hyp = ""
+                end
 				puts "RESULT:" + hyp
 				nbest_results << {:utterance => hyp}
 			end
@@ -186,10 +198,6 @@ def do_post()
 		end
     
     
-    #result = Iconv.iconv('utf-8', 'latin1', result)[0]
-    #linearizations.each do |l|
-		#	l[:output] =  Iconv.iconv('utf-8', 'latin1', l[:output])[0]
-		#end
 		
 		nbest_results.each do |nbest_result|
 			nbest_result[:utterance] = Iconv.iconv('utf-8', 'latin1', nbest_result[:utterance])[0]
@@ -199,8 +207,6 @@ def do_post()
 				end
 			end
 		end
-    
-    
     
     headers "Content-Type" => "application/json; charset=utf-8", "Content-Disposition" => "attachment"
 	  JSON.pretty_generate({:status => 0, :id => id, :hypotheses => nbest_results})
@@ -213,7 +219,7 @@ end
 
 error do
     puts "Error: " + env['sinatra.error']
-    if @use_rec != nil and @use_rec.is_recognizing?
+    if @use_rec != nil and @use_rec.recognizing?
       puts "Trying to clear recognizer.."
       @use_rec.stop
       puts "Cleared recognizer"
