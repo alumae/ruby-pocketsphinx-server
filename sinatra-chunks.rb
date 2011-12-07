@@ -31,9 +31,10 @@ configure do
   
   CHUNK_SIZE = 4*1024
   
-  use Rack::Throttle::Daily,   :max =>  $config.fetch('throttling.max-daily', 1000)
-  use Rack::Throttle::Hourly,   :max => $config.fetch('throttling.max-hourly', 100)
-  use Rack::Throttle::Interval, $config.fetch('throttling.min-interval', 1)
+  throttiling_config = $config.fetch('throttling', {})
+  use Rack::Throttle::Daily,   :max =>  throttiling_config.fetch('max-daily', 1000)
+  use Rack::Throttle::Hourly,   :max => throttiling_config.fetch('max-hourly', 100)
+  use Rack::Throttle::Interval, :min => throttiling_config.fetch('min-interval', 1)
   use Rack::Throttle::Interval, :cache => GDBM.new('throttle.db')
 end
 
