@@ -1,41 +1,58 @@
-pocketsphinx.ngram:
-    hmm: models/est16k.cd_cont_3000
-    dict: models/jutusaated.swwp2.dict
-    lm: models/sphinx-trigram.jutusaated.swwp2.arpa.gz
-    fsg: tmp/goforward.fsg
-    bestpath: false
-    fwdflat: false
-    maxhmmpf: 1000
-    maxwpf: 50
-    beam: 1.0e-80
-    wbeam: 1.0e-45
-    pbeam: 1.0e-70
 
+handlers:
+ - name: JSGFHandler
+   require: handlers/jsgf_handler
+   grammar_dir: user_grammars
+   jsgf-to-fsg: ./scripts/jsgf2fsg.sh
+   fsg-to-dict: ./scripts/fsg-to-dict.sh  
+   ps:
+     hmm: models/est16k.cd_cont_3000
+     dict: models/jutusaated.swwp2.dict
+     fsg: dummy.fsg
+     bestpath: true
+     fwdflat: true
+     beam: 1.0e-80
+     pbeam: 1.0e-47
+     wbeam: 1.0e-39
 
-pocketsphinx.fsg:
-    hmm: models/est16k.cd_cont_3000
-    dict: models/jutusaated.swwp2.dict
-    fsg: dummy.fsg
-    bestpath: true
-    fwdflat: true
-    beam: 1.0e-80
-    pbeam: 1.0e-47
-    wbeam: 1.0e-39
+ - name: PGFHandler
+   require: handlers/pgf_handler
+   grammar_dir: user_gfs
+   jsgf-to-fsg: ./scripts/jsgf2fsg.sh
+   fsg-to-dict: ./scripts/fsg-to-dict.sh  
+   convert-gf-jsgf: ./scripts/convert-gf-jsgf.sh
+   ps:
+     hmm: models/est16k.cd_cont_3000
+     dict: models/jutusaated.swwp2.dict
+     fsg: dummy.fsg
+     bestpath: true
+     fwdflat: true
+     beam: 1.0e-80
+     pbeam: 1.0e-47
+     wbeam: 1.0e-39
+  
+ - name: Prettifier
+   require: handlers/prettifier
+   script: ./prettify-with-numbers.sh
+   ps:
+     hmm: models/est16k.cd_cont_3000
+     dict: models/jutusaated.swwp2.dict
+     lm: models/sphinx-trigram.jutusaated.swwp2.arpa.gz
+     #fsg: tmp/goforward.fsg
+     bestpath: true
+     maxwpf: 700
+     fwdflat: true
+     maxhmmpf: 12000
+     wbeam: 1.0e-32
+     beam: 1.0e-50
+     pbeam: 1.0e-50
+   
 
-
-
-prettifier: ./prettify-with-numbers.sh
-
-logging:
-    request-debug: out
-    
-
-jsgf-to-fsg: ./scripts/jsgf2fsg.sh
-
-fsg-to-dict: ./fsg-to-dict.sh
+request_dump_dir: out
+recognizer_encoding: latin1    
 
 # Request throttling: enforces limits based on user IP
 throttling:
-    max-daily: 200
-    max-hourly: 100
-    min-interval: 1
+    max-daily: 2000
+    max-hourly: 1000
+    min-interval: 0
