@@ -8,7 +8,7 @@ class PocketsphinxServer::Handler
   def initialize(server, config={})
     @config = config
     @server = server
-    @recognizer = PocketsphinxServer::Recognizer.new(server, config.fetch('ps', {}))
+    @recognizer = PocketsphinxServer::Recognizer.new(server, config.fetch('recognizer', {}))
   end
   
   # Can this handler handle this request?
