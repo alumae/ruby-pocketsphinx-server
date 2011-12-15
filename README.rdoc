@@ -89,7 +89,7 @@ You need to upload the JSGF file to somewhere where the server can fetch it, let
  
 Now, let the server download and compile it:
 
- curl -vv  http://localhost:8080/fetch-jsgf?lm=http://www.example.com/robot.jsgf
+ curl -vv  http://localhost:8080/fetch-lm?url=http://www.example.com/robot.jsgf
 
 This should result in HTTP/1.1 200 OK.
 
@@ -119,7 +119,7 @@ GF (Grammatical Framework) grammars are now supported.
 
 A GF grammar must be compiled into a .pgf file. To upload it to the server, use the fetch-pgf API call, e.g.:
   
-  curl "http://bark.phon.ioc.ee/speech-api/v1/fetch-pgf?url=http://kaljurand.github.com/Grammars/grammars/pgf/Calc.pgf&lang=Est"
+  curl "http://bark.phon.ioc.ee/speech-api/v1/fetch-lm?url=http://kaljurand.github.com/Grammars/grammars/pgf/Calc.pgf&lang=Est"
   
 The 'lang' attribute (defaults to 'Est') specifies input languages of the grammar. Many comma-seperated languages can be specified, e.g lang=Est,Est2
 
@@ -153,4 +153,4 @@ Output:
   "id": "83486feaca30995401ed4a66951a3f23"
  }
   
-Multiple output languages can be used (not tested), by using comma-speperated values: "..&output-lang=App,App2"
+Multiple output languages can be used, by using comma-speperated values: "..&output-lang=App,App2"

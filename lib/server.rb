@@ -14,7 +14,6 @@ module PocketsphinxServer
 
 require 'raw_recognizer'
 
-
   class PocketsphinxServer::Server < Sinatra::Base
   
     configure do
@@ -79,7 +78,6 @@ require 'raw_recognizer'
       end
     end
   
-  
     def do_post()
       id = SecureRandom.hex
       
@@ -104,7 +102,6 @@ require 'raw_recognizer'
       if req.params.has_key? 'nbest'
         nbest_n = req.params['nbest'].to_i
       end
-
       
       if settings.outdir != nil
          File.open("#{@outdir}/#{id}.info", 'w') { |f|
@@ -145,7 +142,7 @@ require 'raw_recognizer'
       @req_handler.recognizer.feed_data(left_over)
         
       
-      puts "Got feed end"
+      logger.info "Data end received"
       if length > 0
         @req_handler.recognizer.feed_end()
         result,nbest = @req_handler.recognizer.wait_final_result(max_nbest=nbest_n)
@@ -168,14 +165,13 @@ require 'raw_recognizer'
         
         source_encoding = settings.config["recognizer_encoding"]
         if source_encoding != "utf-8"
-          # convert all string in nbest_results from source encoding to UTF-8
+          # convert all strings in nbest_results from source encoding to UTF-8
           traverse( nbest_results ) do |node|
               if node.is_a? String
                 node = Iconv.iconv('utf-8', source_encoding, node)[0]
               end
               node
           end
-
         end
         
         headers "Content-Type" => "application/json; charset=utf-8", "Content-Disposition" => "attachment"
@@ -188,7 +184,7 @@ require 'raw_recognizer'
     end
     
     
-    # Handle /fetch-lm requests and backward compatible
+    # Handle /fetch-lm requests and backward compatible fetch requests
     get %r{/fetch-((lm)|(jsgf)|(pgf))} do
       handled = false
       settings.handlers.each do |handler|
@@ -230,6 +226,7 @@ require 'raw_recognizer'
       end
     end
   
+    # Parses Content-type ans resolves it to GStreamer Caps string
     def content_type_to_caps(content_type)
       if not content_type
         content_type = "audio/x-raw-int"
