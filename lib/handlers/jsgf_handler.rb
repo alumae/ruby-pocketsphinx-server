@@ -17,14 +17,16 @@ class PocketsphinxServer::JSGFHandler < PocketsphinxServer::Handler
     lm_name = req.params['lm']
     log("Using JSGF-based grammar")
     dict_file = dict_file_from_url(lm_name)
-	fsg_file = fsg_file_from_url(lm_name)
-	if not File.exists? fsg_file
-	  raise IOError, "Language model #{lm_name} not available. Use /fetch-jsgf API call to upload it to the server"
-	end
-	if not File.exists? dict_file
-	  raise IOError, "Pronunciation dictionary for #{lm_name} not available. Use /fetch-jsgf API call to make it on the server"
+    fsg_file = fsg_file_from_url(lm_name)
+    if not File.exists? fsg_file
+      raise IOError, "Language model #{lm_name} not available. Use /fetch-lm API call to upload it to the server"
+    end
+    if not File.exists? dict_file
+      raise IOError, "Pronunciation dictionary for #{lm_name} not available. Use /fetch-lm API call to make it on the server"
     end
     @recognizer.set_fsg(fsg_file, dict_file)      
+    log("Loaded requested JSGF model from #{fsg_file}")
+    
   end
   
   def can_handle_fetch_lm?(req)

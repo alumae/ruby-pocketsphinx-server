@@ -18,20 +18,21 @@ class PocketsphinxServer::PGFHandler < PocketsphinxServer::Handler
     if input_lang == nil
         input_lang = @config.fetch('gf', {}).fetch('default_input_lang', 'Est')
     end
-    output_lang = req.params['output-lang']
+    output_langs = req.params['output-lang']
+    lm_name = req.params['lm']
     digest = MD5.hexdigest lm_name
     pgf_dir = @grammar_dir + '/' + digest
     pgf_basename = File.basename(URI.parse(lm_name).path, ".pgf")
-    return input_lang, output_lang, pgf_dir, pgf_basename
+    return input_lang, output_langs, pgf_dir, pgf_basename
   end
   
   def prepare_rec(req)
     puts "Using GF-based grammar"
-    input_lang, output_lang, pgf_dir, pgf_basename = get_req_properties(req)
+    input_lang, output_langs, pgf_dir, pgf_basename = get_req_properties(req)
     fsg_file = pgf_dir + '/' + pgf_basename + input_lang + ".fsg"
-	dict_file = pgf_dir + '/' + pgf_basename + input_lang + ".dict"
-	if not File.exists? fsg_file
-	  raise IOError, "Grammar for lang #{input_lang} for #{lm_name} not available. Use /fetch-lm API call to upload it to the server"
+    dict_file = pgf_dir + '/' + pgf_basename + input_lang + ".dict"
+    if not File.exists? fsg_file
+      raise IOError, "Grammar for lang #{input_lang} for #{lm_name} not available. Use /fetch-lm API call to upload it to the server"
     end
     if not File.exists? dict_file
         raise IOError, "Pronunciation dictionary for lang #{input_lang} for #{lm_name} not available. Use /fetch-lm API call to make it on the server"
@@ -40,10 +41,10 @@ class PocketsphinxServer::PGFHandler < PocketsphinxServer::Handler
   end
 
   def get_hyp_extras(req, hyp)
-    input_lang, output_lang, pgf_dir, pgf_basename = get_req_properties(req)
+    input_lang, output_langs, pgf_dir, pgf_basename = get_req_properties(req)
     linearizations = []
     output_langs.split(",").each do |output_lang|
-      log "Linearizing result to lang #{output_lang}"
+      log "Linearizing [#{hyp}] to lang #{output_lang}"
       outputs = `echo "parse -lang=#{pgf_basename + input_lang} \\"#{hyp}\\" | linearize -lang=#{pgf_basename + output_lang} | ps -bind" | gf --run #{pgf_dir + '/' + pgf_basename + '.pgf'}`
       outputs.split("\n").each do |output|
         if output != ""
@@ -81,28 +82,28 @@ class PocketsphinxServer::PGFHandler < PocketsphinxServer::Handler
         raise "Failed to extract JSGF from PGF" 
     end
 
-	input_langs.split(',').each do |lang|
-	  jsgf_file = pgf_dir + '/' + pgf_basename + lang + ".jsgf"
-	  fsg_file = pgf_dir + '/' + pgf_basename + lang + ".fsg"
-	  dict_file = pgf_dir + '/' + pgf_basename + lang + ".dict"
-	  log "Making finite state grammar for input language #{lang}"
-	  log "Converting JSGF.."
-	  `#{@config.fetch('convert-gf-jsgf')} #{jsgf_file}`
-      if $? != 0
-        raise "Failed to convert JSGF for lang #{lang}" 
-      end
-      log "Converting to FSG.."
-      `#{@config.fetch('jsgf-to-fsg')} #{jsgf_file} #{fsg_file}`
-      if $? != 0
-        raise "Failed to convert JSGF to FSG for lang #{lang}" 
-      end
-      log "Making dictionary.."
-      `cat #{fsg_file} | #{@config.fetch('fsg-to-dict')} > #{dict_file}`
-      if $? != 0
-        raise "Failed to make dictionary from FSG for lang #{lang}" 
-      end
-	   
-	end
+     input_langs.split(',').each do |lang|
+      jsgf_file = pgf_dir + '/' + pgf_basename + lang + ".jsgf"
+      fsg_file = pgf_dir + '/' + pgf_basename + lang + ".fsg"
+      dict_file = pgf_dir + '/' + pgf_basename + lang + ".dict"
+      log "Making finite state grammar for input language #{lang}"
+      log "Converting JSGF.."
+      `#{@config.fetch('convert-gf-jsgf')} #{jsgf_file}`
+        if $? != 0
+          raise "Failed to convert JSGF for lang #{lang}" 
+        end
+        log "Converting to FSG.."
+        `#{@config.fetch('jsgf-to-fsg')} #{jsgf_file} #{fsg_file}`
+        if $? != 0
+          raise "Failed to convert JSGF to FSG for lang #{lang}" 
+        end
+        log "Making dictionary.."
+        `cat #{fsg_file} | #{@config.fetch('fsg-to-dict')} > #{dict_file}`
+        if $? != 0
+          raise "Failed to make dictionary from FSG for lang #{lang}" 
+        end
+       
+    end
 
     "Request completed"
   end

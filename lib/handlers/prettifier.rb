@@ -5,13 +5,13 @@
 # syncronously process text, i.e., for each input line it instantly
 # flushes an output line
 ###
-class PocketsphinxServer::Prettifier < PocketsphinxServer::Handler
+class PocketsphinxServer::PrettifyingHandler < PocketsphinxServer::Handler
 
   def initialize(server, config={})
     super
     @prettifier
-    if config['script'] != nil
-      @prettifier = IO.popen(config['script'], mode="r+")
+    if config['prettifier'] != nil
+      @prettifier = IO.popen(config['prettifier'], mode="r+")
     end
   end
 

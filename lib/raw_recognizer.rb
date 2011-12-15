@@ -12,6 +12,7 @@ class PocketsphinxServer::Recognizer
   attr :recognizing
          
   def initialize(server, config={})
+    @server = server
     @data_buffers = []
     @clock = Gst::SystemClock.new
     @result = ""
@@ -37,7 +38,7 @@ class PocketsphinxServer::Recognizer
     @filesink.set_property("location", "/dev/null")
     
     config.map{ |k,v|
-      puts "Setting #{k} to #{v}..."
+      log "Setting #{k} to #{v}..."
       @asr.set_property(k, v) 
     }
     # This returns when ASR engine has been fully loaded
@@ -47,6 +48,9 @@ class PocketsphinxServer::Recognizer
   end
 
 
+  def log(str)
+    @server.logger.debug(str)
+  end
  
   def create_pipeline()
     @pipeline = Gst::Pipeline.new "pipeline"
@@ -57,7 +61,7 @@ class PocketsphinxServer::Recognizer
     @tee >> @queue2 >> @filesink
     
     @decoder.signal_connect('pad-added') { | element, pad, last, data |
-      puts "---- pad-added ---- "
+      log "---- pad-added ---- "
       pad.link @audioconvert.get_pad("sink")
     }
 
@@ -65,12 +69,12 @@ class PocketsphinxServer::Recognizer
     
     
     @asr.signal_connect('partial_result') { |asr, text, uttid|
-        #puts "PARTIAL: " + text
+        #log "PARTIAL: " + text
         @result = text
     }
 
     @asr.signal_connect('result') { |asr, text, uttid|
-        #puts "FINAL: " + text
+        #log "FINAL: " + text
         @result = text
         @queue.push(1)
     }
@@ -78,12 +82,12 @@ class PocketsphinxServer::Recognizer
     @appsink = @pipeline.get_child("appsink")
     
     @appsink.signal_connect('eos') { |appsink, data|
-        puts "##### EOS #####"
+        log "##### EOS #####"
     }
 
     @bus = @pipeline.bus
     @bus.signal_connect('message::state-changed') { |appsink, data|
-        puts "##### STATE-CHANGED #####"
+        log "##### STATE-CHANGED #####"
     }
   end     
     
@@ -137,7 +141,7 @@ class PocketsphinxServer::Recognizer
     @pipeline.ready
     @data_buffers.clear
     @recognizing = false
-    puts "CMN mean after: #{@asr.get_property("cmn_mean")}"
+    log "CMN mean after: #{@asr.get_property("cmn_mean")}"
     return result, nbest[0..max_nbest-1]
   end  
   
@@ -149,12 +153,12 @@ class PocketsphinxServer::Recognizer
   
   def set_fsg(fsg_file, dict_file)
     @asr.set_property('fsg', 'dummy.fsg')  
-    puts "Trying to use dict #{dict_file}"
+    log "Trying to use dict #{dict_file}"
     @asr.set_property('dict', dict_file)    
-    puts "Trying to use FSG #{fsg_file}"
+    log "Trying to use FSG #{fsg_file}"
     @asr.set_property('fsg', fsg_file)
     @asr.set_property('configured', true)    
-    puts "FSG configured"
+    log "FSG configured"
   end
   
   def recognizing?()

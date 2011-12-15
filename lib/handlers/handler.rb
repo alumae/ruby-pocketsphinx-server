@@ -11,7 +11,7 @@ class PocketsphinxServer::Handler
     @recognizer = PocketsphinxServer::Recognizer.new(server, config.fetch('ps', {}))
   end
   
-  # Han this handler handle this request?
+  # Can this handler handle this request?
   def can_handle?(req)
     true    
   end
@@ -21,6 +21,7 @@ class PocketsphinxServer::Handler
   
   end
   
+  # Postprocess an hypothesis string (e.g., make it prettyier)
   def postprocess_hypothesis(hyp)
     hyp
   end
@@ -39,8 +40,6 @@ class PocketsphinxServer::Handler
   end
 
   def log(str)
-    puts str
+    @server.logger.info str
   end
-  
-  
 end

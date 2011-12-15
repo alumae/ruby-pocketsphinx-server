@@ -22,6 +22,17 @@ require 'raw_recognizer'
       disable :show_exceptions
 
       LOGGER = Logger.new(STDOUT)
+      set :logger, LOGGER
+      def LOGGER.puts(*s)
+        s.flatten.each { |item| info(item.to_s) }
+      end
+
+      def LOGGER.write(*s)
+        s.flatten.each { |item| info(item.to_s) }
+      end
+
+      $stdout = LOGGER      
+      $stderr = LOGGER      
       
       set :config, YAML.load_file('conf.yaml')
   
@@ -95,7 +106,7 @@ require 'raw_recognizer'
       end
 
       
-      if @outdir != nil
+      if settings.outdir != nil
          File.open("#{@outdir}/#{id}.info", 'w') { |f|
            req.env.select{ |k,v|
               f.write "#{k}: #{v}\n"
@@ -155,18 +166,16 @@ require 'raw_recognizer'
           nbest_results << nbest_result
         end
         
-        source_encoding = settings.config("recognizer_encoding")
+        source_encoding = settings.config["recognizer_encoding"]
         if source_encoding != "utf-8"
           # convert all string in nbest_results from source encoding to UTF-8
-          
-          nbest_results.each do |nbest_result|
-            nbest_result.each do |k,v|
-              if v.is_a? String
-                v = Iconv.iconv('utf-8', source_encoding, nbest_result[:utterance])[0]
-                nbest_result[k] = v
+          traverse( nbest_results ) do |node|
+              if node.is_a? String
+                node = Iconv.iconv('utf-8', source_encoding, node)[0]
               end
-            end
+              node
           end
+
         end
         
         headers "Content-Type" => "application/json; charset=utf-8", "Content-Disposition" => "attachment"
@@ -179,7 +188,7 @@ require 'raw_recognizer'
     end
     
     
-    
+    # Handle /fetch-lm requests and backward compatible
     get %r{/fetch-((lm)|(jsgf)|(pgf))} do
       handled = false
       settings.handlers.each do |handler|
@@ -208,6 +217,19 @@ require 'raw_recognizer'
         'Sorry, failed to process request. Reason: ' + env['sinatra.error'] + "\n"
     end
   
+    # Traverses a structure of hashes and arrays and applied blk to the values
+    def traverse(obj, &blk)
+      case obj
+      when Hash
+        # Forget keys because I don't know what to do with them
+        obj.each {|k,v| obj[k] = traverse(v, &blk) }
+      when Array
+        obj.collect! {|v| traverse(v, &blk) }
+      else
+        blk.call(obj)
+      end
+    end
+  
     def content_type_to_caps(content_type)
       if not content_type
         content_type = "audio/x-raw-int"
@@ -215,7 +237,7 @@ require 'raw_recognizer'
       end
       parts = content_type.split(%r{[,; ]})
       result = ""
-      allowed_types = Set.new ["audio/x-flac", "audio/x-raw-int", "application/ogg", "audio/mpeg", "audio/x-wav",  ]
+      allowed_types = Set.new ["audio/x-flac", "audio/x-raw-int", "application/ogg", "audio/mpeg", "audio/x-wav"]
       if allowed_types.include? parts[0]
         result = parts[0]
         if parts[0] == "audio/x-raw-int"
@@ -229,7 +251,8 @@ require 'raw_recognizer'
         raise IOError, "Unsupported content type: #{parts[0]}. Supported types are: " + allowed_types.to_a.join(", ") + "." 
       end
     end
-  
+
+    # TODO: make this configurable and modular
     def get_user_device_id(user_agent)
       # try to identify android device
       if user_agent =~ /.*\(RecognizerIntentActivity.* ([\w-]+); .*/

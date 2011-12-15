@@ -31,14 +31,14 @@ handlers:
      pbeam: 1.0e-47
      wbeam: 1.0e-39
   
- - name: Prettifier
+ - name: PrettifyingHandler
    require: handlers/prettifier
-   script: ./prettify-with-numbers.sh
+   prettifier: ./prettify-with-numbers.sh
    ps:
      hmm: models/est16k.cd_cont_3000
      dict: models/jutusaated.swwp2.dict
      lm: models/sphinx-trigram.jutusaated.swwp2.arpa.gz
-     #fsg: tmp/goforward.fsg
+     fsg: tmp/goforward.fsg
      bestpath: true
      maxwpf: 700
      fwdflat: true
