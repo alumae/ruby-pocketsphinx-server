@@ -181,7 +181,7 @@ require 'raw_recognizer'
         headers "Content-Type" => "application/json; charset=utf-8", "Content-Disposition" => "attachment"
         JSON.pretty_generate({:status => 0, :id => id, :hypotheses => nbest_results})
       else
-        @use_rec.stop
+        @req_handler.recognizer.stop
         headers "Content-Type" => "application/json; charset=utf-8", "Content-Disposition" => "attachment"
         JSON.pretty_generate({:status => 0, :id => id, :hypotheses => [:utterance => ""]})
       end
