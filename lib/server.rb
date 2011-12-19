@@ -17,6 +17,11 @@ require 'raw_recognizer'
   class PocketsphinxServer::Server < Sinatra::Base
   
     configure do
+      enable :static
+      set :root, File.expand_path(".")
+
+      set :public_folder, 'static'
+      
       enable :logging
       disable :show_exceptions
 
@@ -59,6 +64,8 @@ require 'raw_recognizer'
       use Rack::Throttle::Interval, :min => throttiling_config.fetch('min-interval', 1)
       use Rack::Throttle::Interval, :cache => GDBM.new('throttle.db')
     end
+
+
 
     post '/recognize' do
       do_post()

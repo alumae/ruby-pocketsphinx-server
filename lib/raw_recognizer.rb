@@ -31,7 +31,7 @@ class PocketsphinxServer::Recognizer
     @tee = Gst::ElementFactory.make "tee", "tee"
     @queue1 = Gst::ElementFactory.make "queue", "queue1"
     @filesink = Gst::ElementFactory.make "filesink", "filesink"
-    @queue2 = Gst::ElementFactory.make "queue", "queue2"   
+    @queue2 = Gst::ElementFactory.make "queue", "queue2"  
     @asr = Gst::ElementFactory.make "pocketsphinx", "asr"
     @appsink = Gst::ElementFactory.make "appsink", "appsink"
 

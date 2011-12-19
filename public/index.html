@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Realajalise kõnetuvastuse server</title>
+    <meta name="description" content="">
+    <meta name="author" content="Tanel Alumäe">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
+
+<style type="text/css">
+      /* Override some defaults */
+      html, body {
+        background-color: #eee;
+      }
+      body {
+        padding-top: 40px; /* 40px to make the container go all the way to the bottom of the topbar */
+      }
+      .container > footer p {
+        text-align: center; /* center align it with the container */
+      }
+</style>
+
+</head>
+
+<body>
+
+<div class="topbar">
+  <div class="fill">
+    <div class="container">
+      <a class="brand" href="#">Reaalajalise kõnetuvastuse server</a>
+
+      <ul class="nav">
+        <li class="active"><a href="#">Serverist</a></li>
+        <li><a href="#faq">KKK</a></li>        
+        <li><a href="#contact">Kontakt</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="row">
+          <div class="span10">
+            <h2>Sellest lehest</h2>
+            <p>
+See leht kirjeldab TTÜ Küberneetika Instituudi reaalajalise kõnetuvastuse serverit ja tema kasutamist.          
+            </p>
+
+            <h2>Server</h2>
+            <p>
+Server on mõeldud lühikeste (max. u 20-sekundiliste) eestikeelsete kõnelõikude tuvastamiseks. 
+            </p>
+
+<p>
+Serveri lähtekood on BSD litsentsi alusel saadaval <a href="https://github.com/alumae/ruby-pocketsphinx-server">siin</a>.
+</p>
+<p>
+Server põhineb ise paljudel vaba tarkvara komponentidel. 
+Olulisemad tehnoloogiad, mida serveri juures on kasutatud:
+<ul>
+<li><a href="http://cmusphinx.org">CMU Sphinx</a> (server kasutab Pocketsphinx dekoodrit)</li>
+<li><a href="http://wapiti.limsi.fr">Wapiti</a> -- kasutatakse liitsõnade rekonstrueerimiseks</li>
+<li><a href="http://www.sinatrarb.com/">Sinatra</a> -- serveri poolt kasutav veebiraamistik</li>
+<li><a href="http://www.grammaticalframework.org/">Grammatical Framework</a> -- kasutakse GF-põhisel tuvastusel</li>
+</ul>
+</p>
+
+            <h2>Rakendused</h2>
+            <p>
+Hetkel saab serverit kasutada kahe Android-platvormile loodud rakendusega: 
+<ul>
+<li>Kõnele</li>
+<li>Arvutaja</li>
+</ul>
+            </p>
+
+            <h2>Serveri kasutamine Java rakendustes</h2>
+            <p>
+Serverit on lihtne kasutada läbi spetsiaalse teegi, mis on tasuta ja koos lähtekoodiga saadaval 
+<a href="http://code.google.com/p/net-speech-api/">siin</a>.
+          
+            </p>
+
+            <h2>Serveri kasutamine muudes rakendustes</h2>
+            <p>
+Serveri kasutamine on väga lihtne ka "otse", ilma vaheteegita. Järgnevalt demonstreerime, kuidas
+serverit kasutada Linuxi käsurealt.
+</p>
+
+<p>
+<h3>Näide 1</h3>
+Lindista mikrofoniga üks lühike lause, kasutades <i>raw</i> formaati, 16 kB, mono kodeeringut (vajuta Ctrl-C, kui oled lõpetanud):
+<pre>
+arecord --format=S16_LE  --file-type raw  --channels 1 --rate 16000 > lause1.raw
+</pre>
+Nüüd, saada lause serverisse tuvastamisele:
+<pre>
+curl -X POST --data-binary @lause1.raw \
+-H "Content-Type: audio/x-raw-int; rate=16000" \
+http://bark.phon.ioc.ee/speech-api/v1/recognize?nbest=1
+</pre>
+
+Serverist peaks tulema umbes selline vastus:
+
+<pre>
+{
+  "status": 0,
+  "hypotheses": [
+    {
+      "utterance": "see on esimene lause"
+    }
+  ],
+  "id": "4d00ffd9b1a101940bb3ed88c6b6300d"
+}
+</pre>
+Parameeter <code>nbest=1</code> ütles eelmises päringus serverile, et meid huvitab 
+ainult üks tulemus. Vaikimisi annab server viis kõige tõenäolisemat tulemust,
+tõenäosuse järjekorras:
+<pre>
+curl -X POST --data-binary @lause1.raw \
+-H "Content-Type: audio/x-raw-int; rate=16000" \
+http://bark.phon.ioc.ee/speech-api/v1/recognize
+</pre>
+
+Tulemus:
+<pre>
+{
+  "status": 0,
+  "hypotheses": [
+    {
+      "utterance": "see on esimene lause"
+    },
+    {
+      "utterance": "see on esimene lause on"
+    },
+    {
+      "utterance": "see on esimene lausa"
+    },
+    {
+      "utterance": "see on mu esimene lause"
+    },
+    {
+      "utterance": "see on esimene laose"
+    }
+  ],
+  "id": "61c78c7271026153b83f39a514dc0c41"
+}
+</pre>
+
+
+</p>
+            
+          </div>
+        </div>
+
+        <section id="faq">
+        <div class "row">
+          <div class="span10">
+            <h2>Korduma kippuvad küsimused</h2>
+
+<h5>Kas server lindistab mu kõnet?</h5>
+Jah. Üldjuhul neid salvestusi küll keegi ei kuula, aga pisteliselt võidakse
+salvestusi kuulata ja käsitsi transkribeerida tuvastuskvaliteedi hindamiseks
+ja parandamiseks.
+
+<h5>Tuvastuskvaliteet on väga halb!</h5>
+Jah. Parima kvalieedi saab suu lähedal oleva mikrofoni kasutamisel.
+Loodetavasti tulevikus kvalieet paraneb, kui saame juba serverisse saadetud
+salvestusi kasutada kvaliteedi parandamiseks (vt eelmine küsimus).
+
+<h5>Kas ma võin serverit piiramatult tasuta kasutada?</h5>
+Mitte päris. Hetkel võib ühelt IP-lt teha tunnis kuni 100 ja päevas kuni 200 tuvastuspäringut.
+Tulevikus võivad need limiidid muutuda (see sõltub teenuse populaarsusest ja meie serveripargi
+arengust).
+
+<h5>Mis mõttes see tasuta on?</h5>
+Tehnoloogia on välja töötatud riikliku programmi "Eesti keeletehnoloogia 2011-2017" raames, seega
+on maksumaksja juba selle eest maksnud. Riiklik programm ei pane küll meile
+kohustust sellist serverit piiramatult hallata, sellepärast võivad tulevikus
+kasutustingimused muutuda, serveri tarkvara aga jääb alatiseks tasuta, kui
+ei teki muingeid muid seniarvestamata asjaolusid.
+
+<h5>Kas ma võin sellise tuvastustarkava enda serverisse installeerida?</h5>
+Jah. 
+            
+          </div>
+        
+        </div>
+        </section>
+        
+        <section id="contact">
+        <div class "row">
+          <div class="span10">
+            <h2>Kontakt</h2>
+<p>
+Tanel Alumäe: <href a="mailto:tanel.alumae@phon.ioc.ee">tanel.alumae@phon.ioc.ee</href>
+</p>              
+          </div>
+        
+        </div>
+        </section>
+      </div>
+
+
+
+
+      <footer>
+        <p>&copy; TTÜ Küberneetika Instituut 2011</p>
+
+      </footer>
+
+    </div> <!-- /container -->
+
+  </body>
+</html>
