@@ -65,8 +65,10 @@ require 'raw_recognizer'
       use Rack::Throttle::Interval, :cache => GDBM.new('throttle.db')
     end
 
-
-
+    get '/' do
+      redirect '/index.html'
+    end
+    
     post '/recognize' do
       do_post()
     end
