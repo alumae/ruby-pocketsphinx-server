@@ -16,7 +16,7 @@ Olulisemad tehnoloogiad, mida serveri juures on kasutatud:
 
 * [CMU Sphinx](http://cmusphinx.org) -- server kasutab kõnetuvastuseks Pocketsphinx dekoodrit
 * [Wapiti](http://wapiti.limsi.fr) -- kasutatakse liitsõnade rekonstrueerimiseks
-* [Sinatra](http://www.sinatrarb.com) --  serveri poolt kasutav veebiraamistik
+* [Sinatra](http://www.sinatrarb.com) --  serveri poolt kasutatav veebiraamistik
 * [Grammatical Framework](http://www.grammaticalframework.org) -- kasutakse GF-põhisel tuvastusel
 
 ## Rakendused
@@ -38,7 +38,7 @@ Serverit on lihtne kasutada läbi spetsiaalse teegi, mis on tasuta ja koos läht
 Serveri kasutamine on väga lihtne ka "otse", ilma vaheteegita. Järgnevalt demonstreerime, kuidas
 serverit kasutada Linuxi käsurealt.
 
-### Näide 1
+### Näide 1: raw formaadis heli
 
 Lindista mikrofoniga üks lühike lause, kasutades <i>raw</i> formaati, 16 kB, mono kodeeringut (vajuta Ctrl-C, kui oled lõpetanud):
 
@@ -52,7 +52,7 @@ Nüüd, saada lause serverisse tuvastamisele:
       http://bark.phon.ioc.ee/speech-api/v1/recognize?nbest=1
 
 
-Server genereerib vastuse JSON fomaadis:
+Server genereerib vastuse JSON formaadis:
 
 
     {
@@ -65,10 +65,37 @@ Server genereerib vastuse JSON fomaadis:
       "id": "4d00ffd9b1a101940bb3ed88c6b6300d"
     }
 
+### Näide 2: ogg formaadis heli
+
+Server tunneb ka formaate flac, ogg, mpeg, wav. Päringu Content-Type väli peaks sel juhul olema
+vastavalt audio/x-flac, application/ogg, audio/mpeg või audio/x-wav.
+
+Salvestame ogg formaadis lause (selleks peaks olema installeeritud pakett SoX):
+
+    rec -r 16000 lause2.ogg
+    
+Saadame serverisse, kasutades PUT päringut:
+    
+    cat lause2.ogg | curl -T - -H "Content-Type: application/ogg"  "http://bark.phon.ioc.ee/speech-api/v1/recognize?nbest=1"
+
+Väljund:
+
+    {
+      "status": 0,
+      "hypotheses": [
+        {
+          "utterance": "see on teine lause"
+        }
+      ],
+      "id": "dfd8ed3a028d1e70e4233f500e21c027"
+    }
+
+
+### Näide 3: mitu tuvastushüpoteesi
 
 Parameeter <code>nbest=1</code> ütles eelmises päringus serverile, et meid huvitab 
-ainult üks tulemus. Vaikimisi annab server viis kõige tõenäolisemat tulemust,
-tõenäosuse järjekorras:
+ainult üks tulemus. Vaikimisi annab server viis kõige tõenäolisemat tuvastushüpoteesi,
+hüpoteesi tõenäosuse järjekorras:
 
     curl -X POST --data-binary @lause1.raw \
       -H "Content-Type: audio/x-raw-int; rate=16000" \
