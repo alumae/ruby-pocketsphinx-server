@@ -67,8 +67,6 @@ require 'raw_recognizer'
     end
 
     get '/' do
-      	
-
        markdown :index, :layout_engine => :erb
     end
     
@@ -221,6 +219,11 @@ require 'raw_recognizer'
           logger.info "Trying to clear recognizer.."
           @req_handler.recognizer.stop
           logger.info "Cleared recognizer"
+        end
+        #consume request body to avoid proxy error
+        begin
+          request.body.read
+        rescue
         end
         'Sorry, failed to process request. Reason: ' + env['sinatra.error'] + "\n"
     end
