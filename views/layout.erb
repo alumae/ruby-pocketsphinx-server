@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title><%= @title %></title>
+
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
+    <style type="text/css">
+          /* Override some defaults */
+          html, body {
+            background-color: #eee;
+          }
+          body {
+            padding-top: 40px; /* 40px to make the container go all the way to the bottom of the topbar */
+          }
+          .container > footer p {
+            text-align: center; /* center align it with the container */
+          }
+          
+          code {
+            background-color: inherit;
+          }
+    </style>
+    
+  </head>
+  <body>
+    <div class="container">
+      <div class="content">
+  
+    <%= yield %>
+      <footer>
+        <p>&copy; TTÜ Küberneetika Instituut 2011</p>
+
+      </footer>
+      </div>
+    </div> <!-- /container -->
+    
+  </body>
+</html>
