@@ -8,7 +8,7 @@ Ruby-based web service for speech recognition, using the PocketSphinx gstreamer 
 * Sinatra
 * Rack
 * Unicorn
-* Additional Ruby modules: gdbm, rack/throttle
+* Additional Ruby modules: gdbm, rack/throttle, maruku
 * Pocketsphinx (NOTE: some features of the server require modifications of Pocketsphinx that are not yet public. Sorry about that.)
 * Some acoustic and language models for Pocketsphinx
 

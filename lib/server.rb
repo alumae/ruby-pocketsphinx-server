@@ -9,6 +9,7 @@ require 'md5'
 require 'uri'
 require 'rack/throttle'
 require 'gdbm'
+require 'maruku'
 
 module PocketsphinxServer
 
@@ -66,7 +67,9 @@ require 'raw_recognizer'
     end
 
     get '/' do
-      redirect '/index.html'
+      	
+
+       markdown :index, :layout_engine => :erb
     end
     
     post '/recognize' do
