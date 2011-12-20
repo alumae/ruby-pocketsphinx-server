@@ -9,9 +9,9 @@ See leht kirjeldab TTÜ Küberneetika Instituudi [foneetika- kõnetehnoloogia la
 
 Server on mõeldud lühikeste (max. u 20-sekundiliste) eestikeelsete kõnelõikude tuvastamiseks. 
 
-Serveri lähtekood on BSD litsentsi alusel saadaval [siin](https://github.com/alumae/ruby-pocketsphinx-server).
+Serveri lähtekood on BSD litsentsi alusel saadaval [siin](https://github.com/alumae/ruby-pocketsphinx-server). 
 
-Server põhineb ise paljudel vaba tarkvara komponentidel. 
+Server põhineb ise paljudel vaba tarkvara komponentidel, mille litsentse tuleks serveri kasutamisel arvestada.
 Olulisemad tehnoloogiad, mida serveri juures on kasutatud:
 
 * [CMU Sphinx](http://cmusphinx.org) -- server kasutab kõnetuvastuseks Pocketsphinx dekoodrit
