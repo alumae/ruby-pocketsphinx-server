@@ -21,12 +21,14 @@ Olulisemad tehnoloogiad, mida serveri juures on kasutatud:
 
 ## Rakendused
 
-Hetkel saab serverit kasutada kahe Android-platvormile loodud rakendusega: 
+Hetkel saab serverit kasutada Android-platvormile loodud rakendusega: 
 
 * [Kõnele](http://code.google.com/p/recognizer-intent)
 * [Arvutaja](https://github.com/Kaljurand/Arvutaja)
 
 ![](http://www.android.com/images/brand/45_avail_market_logo1.png)
+
+Mõlemad rakendused on tasuta ja avatud lähtekoodiga.
 
 ## Serveri kasutamine Java rakendustes
 
@@ -138,7 +140,7 @@ ja parandamiseks.
 
 Jah. Parima kvaliteedi saab suu lähedal oleva mikrofoni kasutamisel.
 Loodetavasti tulevikus kvaliteet paraneb, kui saame juba serverisse saadetud
-salvestusi kasutada kvaliteedi parandamiseks (vt eelmine küsimus).
+salvestusi kasutada mudelite parandamiseks (vt eelmine küsimus).
 
 
 #### Kas ma võin serverit piiramatult tasuta kasutada?
@@ -163,10 +165,10 @@ eesti keele akustilise ja statistilise keelemudeli ning liitsõnade rekonstrueer
 saamiseks palume kontakteeruda. Mudelid ei ole päris "vabad", s.t. nendele kehtivad teatud
 kasutuspiirangud (näiteks ei või neid levitada).
 
-#### Kas iOS rakendus ka tuleb?
+#### Kas iOS (Windows Phone 7, Blackberry, Meego) rakendus ka tuleb?
 
 Hetkel pole plaanis. Samas on server avatud kõikidele rakendustele, seega
-võib iOSi rakenduse implementeerida keegi kolmas.
+võib sellise rakenduse implementeerida keegi kolmas. 
 
 ## Kontakt
 
