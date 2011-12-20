@@ -23,8 +23,8 @@ Olulisemad tehnoloogiad, mida serveri juures on kasutatud:
 
 Hetkel saab serverit kasutada kahe Android-platvormile loodud rakendusega: 
 
-* Kõnele
-* Arvutaja
+* [Kõnele](http://code.google.com/p/recognizer-intent)
+* [Arvutaja](https://github.com/Kaljurand/Arvutaja)
 
 ![](http://www.android.com/images/brand/45_avail_market_logo1.png)
 
@@ -52,7 +52,7 @@ Nüüd, saada lause serverisse tuvastamisele:
       http://bark.phon.ioc.ee/speech-api/v1/recognize?nbest=1
 
 
-Serverist peaks tulema umbes selline vastus:
+Server genereerib vastuse JSON fomaadis:
 
 
     {
@@ -132,7 +132,9 @@ ei teki mingeid muid seniarvestamata asjaolusid.
 #### OK, aga kas ma võin siis sellise tuvastustarkava enda serverisse installeerida?
 
 Jah. Serveri tarkvara on saadaval [siin](https://github.com/alumae/ruby-pocketsphinx-server),
-eesti keele akustilise ja statistilise keelemudeli saamiseks palume kontakteeruda.
+eesti keele akustilise ja statistilise keelemudeli ning liitsõnade rekonstrueerimismudeli
+saamiseks palume kontakteeruda. Mudelid ei ole päris "vabad", s.t. nendele kehtivad teatud
+kasutuspiirangud (näiteks ei või neid levitada).
 
 ## Kontakt
 
