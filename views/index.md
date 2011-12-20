@@ -208,7 +208,7 @@ Palju eestikeelse implementatsiooniga GF grammatikaid leiab [siit](http://kaljur
 
 Nagu JSGF puhul, tuleb ka GF grammatika serverisse laadida, kasutades GF binaarset
 formaati (PFG). Antud juhul tuleb ka spetsifitseerida,
-millist grammatikaimplementatsiooni server kõnetuvastuseks kasutama peaks, kasutades parammetrit 
+millist grammatikaimplementatsiooni server kõnetuvastuseks kasutama peaks, kasutades parameetrit 
 <code>lang</code>:
 
     curl "http://bark.phon.ioc.ee/speech-api/v1/fetch-lm?url=http://kaljurand.github.com/Grammars/grammars/pgf/Go.pgf&lang=Est"
@@ -242,7 +242,11 @@ Vastus:
     }
 
 Vastuses on nüüd iga hüpoteesi juures väli <code>linearizations</code>,
-mis annab sisendi "linearisatsiooni" (ehk tõlke) väljundkeeles. Kui PGF failis
+mis annab sisendi "linearisatsiooni" (ehk tõlke) väljundkeeles. Antud juhul
+on linearisatsioon väljundkeeles "4 m >", mida on robotil võib-olla
+lihtsam parsida, kui eestikeelset käsklust.
+
+Kui PGF failis
 on grammatikaimplementatsioone rohkem, võib korraga küsida väljundit mitmes keeles:
     
     curl  -T mine_4m_edasi.ogg \
