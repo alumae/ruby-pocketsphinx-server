@@ -50,10 +50,9 @@ require 'raw_recognizer'
         handler = PocketsphinxServer.const_get(className).new(self, handler_config)  
         handlers << handler    
       end
-      
-      set :outdir, nil
+
       begin
-        outdir = :config["request_dump_dir"]
+        set :outdir, config["request_dump_dir"]
       rescue
       end
       
@@ -114,7 +113,7 @@ require 'raw_recognizer'
       end
       
       if settings.outdir != nil
-         File.open("#{@outdir}/#{id}.info", 'w') { |f|
+         File.open("#{settings.outdir}/#{id}.info", 'w') { |f|
            req.env.select{ |k,v|
               f.write "#{k}: #{v}\n"
            }

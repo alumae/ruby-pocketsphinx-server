@@ -163,6 +163,11 @@ eesti keele akustilise ja statistilise keelemudeli ning liitsõnade rekonstrueer
 saamiseks palume kontakteeruda. Mudelid ei ole päris "vabad", s.t. nendele kehtivad teatud
 kasutuspiirangud (näiteks ei või neid levitada).
 
+#### Kas iOS rakendus ka tuleb?
+
+Hetkel pole plaanis. Samas on server avatud kõikidele rakendustele, seega
+võib iOSi rakenduse implementeerida keegi kolmas.
+
 ## Kontakt
 
 Tanel Alumäe: [tanel.alumae@phon.ioc.ee](tanel.alumae@phon.ioc.ee)
