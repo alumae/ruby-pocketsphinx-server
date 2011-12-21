@@ -22,12 +22,15 @@ Olulisemad tehnoloogiad, mida serveri juures on kasutatud:
 
 ## Rakendused
 
-Hetkel saab serverit kasutada Android-platvormile loodud rakendusega: 
+Hetkel saab serverit kasutada kahe Android-platvormile loodud rakendusega: 
 
 * [Kõnele](http://code.google.com/p/recognizer-intent)
 * [Arvutaja](https://github.com/Kaljurand/Arvutaja)
 
-![](http://www.android.com/images/brand/45_avail_market_logo1.png)
+<a href="http://market.android.com/search?q=pub:Kaarel Kaljurand">
+  <img src="http://www.android.com/images/brand/45_avail_market_logo1.png"
+       alt="Available in Android Market" />
+</a>
 
 Mõlemad rakendused on tasuta ja avatud lähtekoodiga.
 
@@ -158,7 +161,7 @@ Grammatika:
     grammar robot;
        
     public <command> = <liigu> | <keera>;
-    <liigu> = (liigu | mine ) [ ( üks meeter ) |( (kaks | kolm | neli | viis ) meetrit ) ] (edasi | tagasi" );
+    <liigu> = (liigu | mine ) [ ( üks meeter ) | ( (kaks | kolm | neli | viis ) meetrit ) ] (edasi | tagasi );
     <keera> = (keera | pööra) [ paremale | vasakule ];
 
 Grammatika kasutamiseks peab selle kõigepealt laadima kusagile internetiserverisse, kus ta oleks 
@@ -196,7 +199,7 @@ Vastus:
 NB! JSGF formaadis grammatikad peaksid olema ISO-8859-14 kodeeringus. Serveri vastus on
 UTF-8 kodeeringus, nagu JSON standard ette näeb.
 
-### Näide 5: GF formaadis grammatika kasutamine (edasiõudnutele)
+### Näide 5: GF formaadis grammatika kasutamine (edasijõudnutele)
 
 GF on grammatikaformalism, mis lubab muu hulgas ühele abstraktsele grammatikale
 luua mitu implementatsiooni erinevates keeltes. Näiteks, abstraktne grammatika
@@ -207,7 +210,7 @@ defineerib, kuidas robotit eesti keeles juhtida, ning teine implementatsioon
 Palju eestikeelse implementatsiooniga GF grammatikaid leiab [siit](http://kaljurand.github.com/Grammars/).
 
 Nagu JSGF puhul, tuleb ka GF grammatika serverisse laadida, kasutades GF binaarset
-formaati (PFG). Antud juhul tuleb ka spetsifitseerida,
+formaati (PGF). Antud juhul tuleb ka spetsifitseerida,
 millist grammatikaimplementatsiooni server kõnetuvastuseks kasutama peaks, kasutades parameetrit 
 <code>lang</code>:
 
@@ -217,7 +220,7 @@ Salvestame jälle testlause (näiteks "mine neli meetrit edasi"):
 
     rec -r 16000 mine_4m_edasi.ogg
 
-Tuvastamiseks tuleb näidata serverile, milline on soovitav väljundkeel:
+Tuvastamiseks tuleb näidata serverile, milline on soovitav väljundkeel (parameetriga <code>output-lang=App</code>):
 
     curl  -T mine_4m_edasi.ogg \
       -H "Content-Type: application/ogg"\
@@ -242,8 +245,8 @@ Vastus:
     }
 
 Vastuses on nüüd iga hüpoteesi juures väli <code>linearizations</code>,
-mis annab sisendi "linearisatsiooni" (ehk tõlke) väljundkeeles. Antud juhul
-on linearisatsioon väljundkeeles "4 m >", mida on robotil võib-olla
+mis annab sisendi "linearisatsiooni" (ehk tõlke) väljundkeeles. Antud grammatika
+puhul on linearisatsioon väljundkeeles "4 m >", mida on robotil võib-olla
 lihtsam parsida, kui eestikeelset käsklust.
 
 Kui PGF failis
