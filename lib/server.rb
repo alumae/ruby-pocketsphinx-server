@@ -70,6 +70,10 @@ require 'raw_recognizer'
        markdown :index, :layout_engine => :erb
     end
     
+    get '/stats_data.js' do
+        
+    end
+    
     post '/recognize' do
       do_post()
     end
@@ -289,9 +293,11 @@ require 'raw_recognizer'
       rescue
       end
       cmn_means[device_id] = mean
-      File.open('cmn_means.yaml', 'w' ) do |out|
+      uid = Process.uid
+      File.open("cmn_means.yaml.#{uid}", 'w' ) do |out|
         YAML.dump( cmn_means, out )
       end
+      `mv cmn_means.yaml.#{uid} cmn_means.yaml`
     end
   end
 
