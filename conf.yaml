@@ -7,7 +7,7 @@ handlers:
    fsg-to-dict: ./scripts/fsg-to-dict.sh  
    recognizer:
      samprate: 16000
-     hmm: models/est16k.cd_cont_3000
+     hmm: models/est16k.cd_cont_3000.fourier
      dict: models/jutusaated.swwp2.dict
      fsg: dummy.fsg
      bestpath: true
@@ -24,7 +24,7 @@ handlers:
    convert-gf-jsgf: ./scripts/convert-gf-jsgf.sh
    recognizer:
      samprate: 16000
-     hmm: models/est16k.cd_cont_3000
+     hmm: models/est16k.cd_cont_3000.fourier
      dict: models/jutusaated.swwp2.dict
      fsg: dummy.fsg
      bestpath: true
@@ -42,7 +42,7 @@ handlers:
      hmm: models/est16k.cd_cont_3000.fourier
      dict: models/jutusaated.swwp2.dict
      lm: models/sphinx-trigram.jutusaated.swwp2.arpa.gz
-     #fsg: tmp/goforward.fsg
+     fsg: tmp/goforward.fsg
      bestpath: true
      maxwpf: 700
      fwdflat: true
