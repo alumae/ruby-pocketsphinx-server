@@ -70,8 +70,11 @@ require 'raw_recognizer'
        markdown :index, :layout_engine => :erb
     end
     
-    get '/stats_data.js' do
-        
+    get '/stats.png' do
+        headers "Content-Type" => "image/png"
+        `mkdir -p tmp`
+        `./scripts/log2png.sh server.log tmp/stats.png`
+        File.read(File.join('tmp', "stats.png"))
     end
     
     post '/recognize' do
