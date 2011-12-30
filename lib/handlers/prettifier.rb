@@ -18,7 +18,7 @@ class PocketsphinxServer::PrettifyingHandler < PocketsphinxServer::Handler
   def postprocess_hypothesis(hyp)
     if @prettifier != nil
       log "PRETTIFYING: #{hyp}"
-      @prettifier.puts hyp
+      @prettifier.puts "#{hyp}"
       @prettifier.flush
       result = @prettifier.gets.strip
       log "RESULT:      #{result}"
