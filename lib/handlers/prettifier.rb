@@ -1,4 +1,4 @@
-
+require 'handlers/handler'
 
 ###
 # This handler postprocesses hyps using an external script that can 
