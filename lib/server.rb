@@ -70,11 +70,20 @@ require 'raw_recognizer'
        markdown :index, :layout_engine => :erb
     end
     
+    # FIXME: make it concurrent-safe
     get '/stats.png' do
         headers "Content-Type" => "image/png"
         `mkdir -p tmp`
         `./scripts/log2png.sh server.log tmp/stats.png`
         File.read(File.join('tmp', "stats.png"))
+    end
+    
+    # FIXME: make it concurrent-safe    
+    get '/apps.png' do 
+        headers "Content-Type" => "image/png"
+        `mkdir -p tmp`
+        `./scripts/log2apps-png.sh server.log tmp/apps.png`
+        File.read(File.join('tmp', "apps.png"))
     end
     
     post '/recognize' do
