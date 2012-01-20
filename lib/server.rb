@@ -71,7 +71,7 @@ require 'raw_recognizer'
     end
     
     # FIXME: make it concurrent-safe
-    get '/stats.png' do
+    get '/stats/history.png' do
         headers "Content-Type" => "image/png"
         `mkdir -p tmp`
         `./scripts/log2png.sh server.log tmp/stats.png`
@@ -79,11 +79,17 @@ require 'raw_recognizer'
     end
     
     # FIXME: make it concurrent-safe    
-    get '/apps.png' do 
+    get '/stats/apps.png' do 
         headers "Content-Type" => "image/png"
         `mkdir -p tmp`
         `./scripts/log2apps-png.sh server.log tmp/apps.png`
         File.read(File.join('tmp', "apps.png"))
+    end
+    
+    get '/stats/apps.txt' do
+        headers "Content-Type" => "text/plain"
+        `mkdir -p tmp`
+        `./scripts/log2apps-txt.sh server.log`
     end
     
     post '/recognize' do

@@ -1,6 +1,8 @@
 #! /bin/bash
 
-grep "^I, \[.*INFO.*User agent" $1 | perl -npe 's/.* (\S+)\)/\1/' | sort | uniq -c | sort -nr | head -20 > tmp/apps.txt
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+$DIR/log2apps-txt.sh $1 | head -20 > tmp/apps.txt
 
 gnuplot <<EOF
 set term pngcairo size 800,600
