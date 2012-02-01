@@ -291,6 +291,8 @@ require 'raw_recognizer'
       # try to identify android device
       if user_agent =~ /.*\(RecognizerIntentActivity.* ([\w-]+); .*/
         return $1
+      elsif user_agent =~ /RecognizerTester.* (\S+)/
+        return $1
       end
       return "default"
     end
