@@ -144,7 +144,7 @@ require 'raw_recognizer'
       end
       logger.info "User agent: " + req.user_agent
       
-      device_id = get_user_device_id(req.user_agent)
+      device_id = get_user_device_id(req)
       logger.info "Device ID : #{device_id}"
       cmn_mean = get_cmn_mean(device_id)
       if cmn_mean != nil
@@ -287,7 +287,12 @@ require 'raw_recognizer'
     end
 
     # TODO: make this configurable and modular
-    def get_user_device_id(user_agent)
+    def get_user_device_id(req)
+      device_id = req.params['device_id']
+      if (not device_id.nil?) and (not device_id.empty?)
+        return device_id
+      end
+      user_agent = req.user_agent
       # try to identify android device
       if user_agent =~ /.*\(RecognizerIntentActivity.* ([\w-]+); .*/
         return $1
