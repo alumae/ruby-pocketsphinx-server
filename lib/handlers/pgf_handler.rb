@@ -43,13 +43,15 @@ class PocketsphinxServer::PGFHandler < PocketsphinxServer::Handler
   def get_hyp_extras(req, hyp)
     input_lang, output_langs, pgf_dir, pgf_basename = get_req_properties(req)
     linearizations = []
-    output_langs.split(",").each do |output_lang|
-      log "Linearizing [#{hyp}] to lang #{output_lang}"
-      outputs = `echo "parse -lang=#{pgf_basename + input_lang} \\"#{hyp}\\" | linearize -lang=#{pgf_basename + output_lang} | ps -bind" | gf --run #{pgf_dir + '/' + pgf_basename + '.pgf'}`
-      outputs.split("\n").each do |output|
-        if output != ""
-          log "LINEARIZED RESULT: " + output
-          linearizations.push({:output => output, :lang => output_lang})
+    if not output_langs.nil?
+      output_langs.split(",").each do |output_lang|
+        log "Linearizing [#{hyp}] to lang #{output_lang}"
+        outputs = `echo "parse -lang=#{pgf_basename + input_lang} \\"#{hyp}\\" | linearize -lang=#{pgf_basename + output_lang} | ps -bind" | gf --run #{pgf_dir + '/' + pgf_basename + '.pgf'}`
+        outputs.split("\n").each do |output|
+          if output != ""
+            log "LINEARIZED RESULT: " + output
+            linearizations.push({:output => output, :lang => output_lang})
+          end
         end
       end
     end
