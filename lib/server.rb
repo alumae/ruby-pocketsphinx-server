@@ -88,8 +88,12 @@ require 'raw_recognizer'
     
     get '/stats/apps.txt' do
         headers "Content-Type" => "text/plain"
-        `mkdir -p tmp`
         `./scripts/log2apps-txt.sh server.log`
+    end
+    
+    get '/stats/models.txt' do
+        headers "Content-Type" => "text/plain"
+        `./scripts/log2models-txt.sh server.log`
     end
     
     post '/recognize' do
