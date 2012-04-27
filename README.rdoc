@@ -65,7 +65,7 @@ If you installed Unicorn as a Ruby gem, you might need to execute:
  
  /var/lib/gems/1.8/bin/unicorn -c unicorn.conf.rb config.ru
  
-Test the default configuration, using a raw audio file in the Pocketsphinx test directory.
+Test the default configuration (English "turtle" LM), using a raw audio file in the Pocketsphinx test directory.
 
   curl -T $(POCKETSPHINX_DIR)/test/data/goforward.raw -H "Content-Type: audio/x-raw-int; rate=16000"  "http://localhost:8080/recognize"
   
@@ -94,6 +94,8 @@ more info.
 See conf.yaml
 
 = Using the web service
+
+Some of the more advanced examples below are specific to the Estonian configuration.
 
 ==Example 1
 
