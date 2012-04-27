@@ -1,2 +1,2 @@
-worker_processes 2
+worker_processes 1
 
