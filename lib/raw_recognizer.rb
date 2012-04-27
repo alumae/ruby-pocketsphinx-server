@@ -136,6 +136,9 @@ class PocketsphinxServer::Recognizer
   # Returns the final recognition result
   def wait_final_result(max_nbest = 5)
     queue.pop
+    # we request more N-best hyps than needed since we don't care about 
+    # differences in fillers
+    @asr.set_property("nbest_size", max_nbest * 3)
     nbest = @asr.get_property("nbest")
     nbest.uniq!
     @pipeline.ready
