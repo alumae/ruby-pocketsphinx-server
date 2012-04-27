@@ -8,13 +8,79 @@ Ruby-based web service for speech recognition, using the PocketSphinx gstreamer 
 * Sinatra
 * Rack
 * Unicorn
-* Additional Ruby modules: gdbm, rack/throttle, maruku
-* Pocketsphinx (NOTE: some features of the server require modifications of Pocketsphinx that are not yet public. Sorry about that.)
+* Pocketsphinx (NOTE: some features of the server require patched Pocketsphinx, see below)
 * Some acoustic and language models for Pocketsphinx
+
+
+= Installing
+
+== CMU Sphinx
+
+* Install sphinxbase from SVN (make, make install)
+
+=== Apply Pocketsphinx patch
+
+In cmusphinx/pocketsphinx directory:
+
+  wget http://www.phon.ioc.ee/~tanela/ps_gst.patch
+  patch  -p0 -i ps_gst.patch
+
+
+Make sure you have GStreamer devevelopment packages installed. In Debian Squeeze:
+
+  apt-get install libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev
+  
+And configure, make, make install as usual.
+
+== Install Ruby gems: Unicorn and Sinatra, UUID tools
+
+This assumes you have ruby and rubygems installed.
+
+You might want to do this as root:
+
+  gem install unicorn
+  gem install sinatra
+  gem install uuidtools
+  gem install json
+  
+Install ruby-gstreamer package (might vary depending on your distribution):
+  
+  apt-get install libgst-ruby1.8
+
+== Run ruby-pocketsphinx-server
+
+Clone the git repository:
+
+  git clone git://github.com/alumae/ruby-pocketsphinx-server.git
+  
+Before executing, add `/usr/local/lib` to the path where GStreamer plugins are looked for:
+
+  export GST_PLUGIN_PATH=/usr/local/lib
 
 = Running
 
  unicorn -c unicorn.conf.rb config.ru
+ 
+If you installed Unicorn as a Ruby gem, you might need to execute:
+ 
+ /var/lib/gems/1.8/bin/unicorn -c unicorn.conf.rb config.ru
+ 
+Test the default configuration, using a raw audio file in the Pocketsphinx test directory.
+
+  curl -T $(POCKETSPHINX_DIR)/test/data/goforward.raw -H "Content-Type: audio/x-raw-int; rate=16000"  "http://localhost:8080/recognize"
+  
+Response should be:
+
+  {
+    "status": 0,
+    "hypotheses": [
+      {
+        "utterance": "go forward ten meters"
+      }
+    ],
+    "id": "15c7a538d0d0c8d7f59e3cc791320953"
+  }
+
 
 = Configuration
 
@@ -33,14 +99,14 @@ See conf.yaml
 
 Record a sentence to a wav file, in mono (hit Ctrl-C when done speaking):
 
- rec -c 1 lause.wav
+ rec -c 1 sentence.wav
  
  
 Send it to the web service:
 
- curl   -X POST --data-binary @lause.wav -H "Content-Type: audio/x-wav"  http://localhost:8080/recognize
+ curl   -X POST --data-binary @sentence.wav -H "Content-Type: audio/x-wav"  http://localhost:8080/recognize
 
-Output (encoded using json):
+Output (encoded using json, the example uses Estonian models):
 
   {
     "status": 0,
