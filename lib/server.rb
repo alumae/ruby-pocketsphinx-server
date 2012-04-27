@@ -7,9 +7,6 @@ require 'yaml'
 require 'open-uri'
 require 'md5'
 require 'uri'
-require 'rack/throttle'
-require 'gdbm'
-require 'maruku'
 
 module PocketsphinxServer
 
@@ -58,12 +55,6 @@ require 'raw_recognizer'
       
       CHUNK_SIZE = 4*1024
       
-      # FIXME: make it work with many instances
-      #throttiling_config = config.fetch('throttling', {})
-      #use Rack::Throttle::Daily,   :max =>  throttiling_config.fetch('max-daily', 1000)
-      #use Rack::Throttle::Hourly,   :max => throttiling_config.fetch('max-hourly', 100)
-      #use Rack::Throttle::Interval, :min => throttiling_config.fetch('min-interval', 1)
-      #use Rack::Throttle::Interval, :cache => GDBM.new('throttle.db')
     end
 
     get '/' do
@@ -297,7 +288,7 @@ require 'raw_recognizer'
         return device_id
       end
       user_agent = req.user_agent
-      # try to identify android device
+      # try to identify android device using old method
       if user_agent =~ /.*\(RecognizerIntentActivity.* ([\w-]+); .*/
         return $1
       elsif user_agent =~ /RecognizerTester.* (\S+)/
