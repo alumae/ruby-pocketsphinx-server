@@ -50,7 +50,7 @@ require 'raw_recognizer'
 
       begin
         set :outdir, config["request_dump_dir"]
-        Dir.mkdir(:outdir)
+        Dir.mkdir(settings.outdir)
       rescue
       end
       
