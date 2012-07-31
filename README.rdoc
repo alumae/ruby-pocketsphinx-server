@@ -8,8 +8,8 @@ Ruby-based web service for speech recognition, using the PocketSphinx gstreamer 
 * Sinatra
 * Rack
 * Unicorn
-* Pocketsphinx (NOTE: some features of the server require patched Pocketsphinx, see below)
-* Some acoustic and language models for Pocketsphinx
+* PocketSphinx (NOTE: some features of the server require patched PocketSphinx, see below)
+* Some acoustic and language models for PocketSphinx
 
 
 = Installing
@@ -18,7 +18,7 @@ Ruby-based web service for speech recognition, using the PocketSphinx gstreamer 
 
 * Install sphinxbase from SVN (make, make install)
 
-=== Apply Pocketsphinx patch
+=== Apply PocketSphinx patch
 
 In cmusphinx/pocketsphinx directory:
 
@@ -65,7 +65,7 @@ If you installed Unicorn as a Ruby gem, you might need to execute:
  
  /var/lib/gems/1.8/bin/unicorn -c unicorn.conf.rb config.ru
  
-Test the default configuration (English "turtle" LM), using a raw audio file in the Pocketsphinx test directory.
+Test the default configuration (English "turtle" LM), using a raw audio file in the PocketSphinx test directory.
 
   curl -T $(POCKETSPHINX_DIR)/test/data/goforward.raw -H "Content-Type: audio/x-raw-int; rate=16000"  "http://localhost:8080/recognize"
   
@@ -130,7 +130,7 @@ Record a raw file using arecord:
 
 Send it to web service:
  
- curl -X POST --data-binary @senrence.raw -H "Content-Type: audio/x-raw-int; rate=16000"  http://localhost:8080/recognize
+ curl -X POST --data-binary @sentence2.raw -H "Content-Type: audio/x-raw-int; rate=16000"  http://localhost:8080/recognize
  
 == Example 3
 
@@ -141,7 +141,7 @@ Record a 5 second audio, pipe it to curl, which streams it directly to web servi
  
 = Support for JSGF grammars
 
-Users can now use their own grammars to recognize certain sentences. The grammars should be in JSGF format.
+Users can use their own grammars to recognize certain sentences. The grammars should be in JSGF format.
 
 Example JSGF (let's call it robot.jsgf)
 
@@ -149,7 +149,7 @@ Example JSGF (let's call it robot.jsgf)
   
  grammar robot;
    
- public <command> = (liigu | mine ) [ ( üks | kaks | kolm | neli | viis ) meetrit ] (edasi | tagasi);
+ public <command> = (liigu | mine ) [ ( Ã¼ks | kaks | kolm | neli | viis ) meetrit ] (edasi | tagasi);
  
 NB! Grammars should be in the same charset that the server is using for dictionary, which currently is latin-1 (sorry for that). 
  
@@ -183,13 +183,13 @@ a recognition request is done (for efficiency reasons).
 
 = Support for GF grammars
 
-GF (Grammatical Framework) grammars are now supported. 
+GF (Grammatical Framework) grammars are supported. 
 
 A GF grammar must be compiled into a .pgf file. To upload it to the server, use the fetch-pgf API call, e.g.:
   
   curl "http://bark.phon.ioc.ee/speech-api/v1/fetch-lm?url=http://kaljurand.github.com/Grammars/grammars/pgf/Calc.pgf&lang=Est"
   
-The 'lang' attribute (defaults to 'Est') specifies input languages of the grammar. Many comma-seperated languages can be specified, e.g lang=Est,Est2
+The 'lang' attribute (defaults to 'Est') specifies input languages of the grammar. Many comma-separated languages can be specified, e.g lang=Est,Est2
 
 To recognize with a GF, use similar request as with JSGF, e.g.:
 
@@ -221,4 +221,4 @@ Output:
   "id": "83486feaca30995401ed4a66951a3f23"
  }
   
-Multiple output languages can be used, by using comma-speperated values: "..&output-lang=App,App2"
+Multiple output languages can be used, by using comma-separated values: "..&output-lang=App,App2"
