@@ -301,8 +301,14 @@ require 'raw_recognizer'
     def get_cmn_mean(device_id)
       cmn_means = {}
       begin
-        cmn_means = YAML.load_file('cmn_means.yaml')
+        File.open('cmn_means.json', 'r') { |f| cmn_means = JSON.load(f) }
       rescue
+        begin
+          # backward compability, remove soon
+          logger.warn("Falling back to deprecated cmn_means.yaml instead of cmn_means.json")
+          cmn_means = YAML.load_file('cmn_means.yaml')
+        rescue
+        end
       end
       return cmn_means.fetch(device_id, nil)
     end 
@@ -315,10 +321,10 @@ require 'raw_recognizer'
       end
       cmn_means[device_id] = mean
       uid = Process.uid
-      File.open("cmn_means.yaml.#{uid}", 'w' ) do |out|
-        YAML.dump( cmn_means, out )
+      File.open("cmn_means.json.#{uid}", 'w' ) do |out|
+        out.write(cmn_means.to_json)
       end
-      `mv cmn_means.yaml.#{uid} cmn_means.yaml`
+      `mv cmn_means.json.#{uid} cmn_means.json`
     end
   end
 
