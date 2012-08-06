@@ -1,8 +1,7 @@
 #! /bin/bash
 
-grep "^I, \[.*INFO.*User agent" $1 | perl -npe 's/^I, \[(\d\d\d\d-\d\d-\d\dT\d\d):\d\d.*/\1:00/g' | sort | uniq -c | awk '{print($2,$1)}' > tmp/data.txt
 
-
+grep "^I, \[.*INFO.*User agent" $1 | perl -npe 's/^I, \[(\d\d\d\d-\d\d-\d\d)T\d\d:\d\d.*/\1/g' | sort | uniq -c | awk '{print($2,$1)}' > tmp/data.txt
 
 gnuplot <<EOF
 
@@ -19,9 +18,9 @@ set style line 12 lc rgb '#808080' lt 0 lw 1
 set grid back ls 12
 set output '$2'
 set xdata time
-set timefmt "%Y-%m-%dT%H:%M"
-set format x "%m-%d\n%H:%M"
-plot "tmp/data.txt" using 1:2 with boxes ti "Requests per hour"
+set timefmt "%Y-%m-%d"
+set format x "%Y-%m"
+plot "tmp/data.txt" using 1:2 with impulses ti "Requests per day"
 EOF
 
 
