@@ -47,11 +47,13 @@ class PocketsphinxServer::PGFHandler < PocketsphinxServer::Handler
       output_langs.split(",").each do |output_lang|
         log "Linearizing [#{hyp}] to lang #{output_lang}"
         outputs = `echo "parse -lang=#{pgf_basename + input_lang} \\"#{hyp}\\" | linearize -lang=#{pgf_basename + output_lang} | ps -bind" | gf --run #{pgf_dir + '/' + pgf_basename + '.pgf'}`
-        outputs.split("\n").each do |output|
-          if output != ""
-            log "LINEARIZED RESULT: " + output
-            linearizations.push({:output => output, :lang => output_lang})
-          end
+        output_lines = outputs.split("\n")
+        if output_lines == []
+          output_lines = [""]
+        end
+        output_lines.each do |output|
+          log "LINEARIZED RESULT: " + output
+          linearizations.push({:output => output, :lang => output_lang})
         end
       end
     end
