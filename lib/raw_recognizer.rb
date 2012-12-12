@@ -75,6 +75,9 @@ class PocketsphinxServer::Recognizer
 
     @asr.signal_connect('result') { |asr, text, uttid|
         #log "FINAL: " + text
+        if text.nil?
+          text = ""
+        end
         @result = text
         @queue.push(1)
     }
@@ -141,6 +144,7 @@ class PocketsphinxServer::Recognizer
     @asr.set_property("nbest_size", max_nbest * 3)
     nbest = @asr.get_property("nbest")
     nbest.uniq!
+    #nbest.map!{ |hyp| if hyp.nil? then hyp = "" end }
     @pipeline.ready
     @data_buffers.clear
     @recognizing = false

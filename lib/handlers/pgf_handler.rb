@@ -1,23 +1,34 @@
 
 require 'handlers/handler'
+require 'rubygems'
+require 'iso-639'
 
 class PocketsphinxServer::PGFHandler < PocketsphinxServer::Handler
 
   def initialize(server, config={})
     super
     @grammar_dir = config.fetch('grammar-dir', 'user_gfs')
+    @language = ISO_639.find(config.fetch('lang', 'et').downcase())
+  end
+
+  def get_request_language(req)
+    lang = req.params['lang']
+    if lang == nil
+      return ISO_639.find('et')
+    end
+    return ISO_639.find(lang.downcase)
   end
 
   def can_handle?(req)
-    lm_name = req.params['lm']
+    if @language != get_request_language(req)
+      return false
+    end    
+    lm_name = req.params['lm']    
     return (lm_name != nil) && (lm_name =~ /pgf$/)
   end
 
   def get_req_properties(req)
-    input_lang = req.params['input-lang']
-    if input_lang == nil
-        input_lang = @config.fetch('gf', {}).fetch('default_input_lang', 'Est')
-    end
+    input_lang = get_request_language(req).alpha3_bibliographic().capitalize()
     output_langs = req.params['output-lang']
     lm_name = req.params['lm']
     digest = MD5.hexdigest lm_name
@@ -62,15 +73,18 @@ class PocketsphinxServer::PGFHandler < PocketsphinxServer::Handler
 
   def can_handle_fetch_lm?(req)
     lm_name = req.params['url']
+    langs = req.params['lang']
+    if langs == nil
+      langs = "Est"
+    end
+    if not langs.split(',').collect { |l| ISO_639.find(l.downcase)}.include? @language
+      return false
+    end
     return (lm_name != nil) && (lm_name =~ /pgf$/)
   end
 
   def handle_fetch_lm(req)
     url = req.params['url']  
-    input_langs = req.params['lang']
-    if input_langs == nil
-       input_langs = @config.fetch('gf', {}).fetch('default_input_lang', 'Est')
-    end
     log "Fetching PGF from #{url}"
     digest = MD5.hexdigest url
     content = open(url).read
@@ -86,28 +100,28 @@ class PocketsphinxServer::PGFHandler < PocketsphinxServer::Handler
         raise "Failed to extract JSGF from PGF" 
     end
 
-     input_langs.split(',').each do |lang|
-      jsgf_file = pgf_dir + '/' + pgf_basename + lang + ".jsgf"
-      fsg_file = pgf_dir + '/' + pgf_basename + lang + ".fsg"
-      dict_file = pgf_dir + '/' + pgf_basename + lang + ".dict"
-      log "Making finite state grammar for input language #{lang}"
-      log "Converting JSGF.."
-      `#{@config.fetch('convert-gf-jsgf')} #{jsgf_file}`
-        if $? != 0
-          raise "Failed to convert JSGF for lang #{lang}" 
-        end
-        log "Converting to FSG.."
-        `#{@config.fetch('jsgf-to-fsg')} #{jsgf_file} #{fsg_file}`
-        if $? != 0
-          raise "Failed to convert JSGF to FSG for lang #{lang}" 
-        end
-        log "Making dictionary.."
-        `cat #{fsg_file} | #{@config.fetch('fsg-to-dict')} > #{dict_file}`
-        if $? != 0
-          raise "Failed to make dictionary from FSG for lang #{lang}" 
-        end
-       
+    lang = @language.alpha3_bibliographic.capitalize()
+     
+    jsgf_file = pgf_dir + '/' + pgf_basename + lang + ".jsgf"
+    fsg_file = pgf_dir + '/' + pgf_basename + lang + ".fsg"
+    dict_file = pgf_dir + '/' + pgf_basename + lang + ".dict"
+    log "Making finite state grammar for input language #{lang}"
+    log "Converting JSGF.."
+    `#{@config.fetch('convert-gf-jsgf')} #{jsgf_file}`
+    if $? != 0
+      raise "Failed to convert JSGF for lang #{lang}" 
     end
+    log "Converting to FSG.."
+    `#{@config.fetch('jsgf-to-fsg')} #{jsgf_file} #{fsg_file}`
+    if $? != 0
+      raise "Failed to convert JSGF to FSG for lang #{lang}" 
+    end
+    log "Making dictionary.."
+    `cat #{fsg_file} | #{@config.fetch('fsg-to-dict')} -lang #{lang} > #{dict_file}`
+    if $? != 0
+      raise "Failed to make dictionary from FSG for lang #{lang}" 
+    end
+       
 
     "Request completed"
   end

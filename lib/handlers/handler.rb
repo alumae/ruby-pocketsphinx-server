@@ -13,7 +13,7 @@ class PocketsphinxServer::Handler
   
   # Can this handler handle this request?
   def can_handle?(req)
-    true    
+    true
   end
   
   # Prepare the recognizer for this request (switch LM, etc)

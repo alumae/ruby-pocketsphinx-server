@@ -54,7 +54,7 @@ require 'raw_recognizer'
       rescue
       end
       
-      CHUNK_SIZE = 4*1024
+      CHUNK_SIZE = 256
       
     end
 
@@ -190,7 +190,6 @@ require 'raw_recognizer'
           nbest_result.merge!(extras_map)
           nbest_results << nbest_result
         end
-        
         source_encoding = settings.config["recognizer_encoding"]
         if source_encoding != "utf-8"
           # convert all strings in nbest_results from source encoding to UTF-8
@@ -219,7 +218,6 @@ require 'raw_recognizer'
         if handler.can_handle_fetch_lm?(request)
           handler.handle_fetch_lm(request)
           handled = true
-          break
         end
       end
       if !handled
