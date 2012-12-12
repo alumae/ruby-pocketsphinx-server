@@ -32,7 +32,7 @@ Make sure you have GStreamer devevelopment packages installed. In Debian Squeeze
   
 And configure, make, make install as usual.
 
-== Install Ruby gems: Unicorn and Sinatra, UUID tools
+== Install Ruby gems: Unicorn and Sinatra, UUID tools, JSON, iso-639
 
 This assumes you have ruby and rubygems installed.
 
@@ -42,10 +42,20 @@ You might want to do this as root:
   gem install sinatra
   gem install uuidtools
   gem install json
+  gem install iso-639
   
 Install ruby-gstreamer package (might vary depending on your distribution):
   
   apt-get install libgst-ruby1.8
+
+== Additional tools
+
+English GF-based recognizer also need:
+
+* libtext-unidecode-perl
+* Phonetisaurus, Phonetisaurus prebuilt model for English (http://code.google.com/p/phonetisaurus/downloads/detail?name=g014b2b.tgz)
+* Python
+
 
 == Run ruby-pocketsphinx-server
 
