@@ -7,7 +7,7 @@ handlers:
    fsg-to-dict: ./scripts/fsg-to-dict.sh  
    recognizer:
      hmm: models/est16k.cd_cont_3000-mapadapt
-     dict: models/jutusaated.swwp2.dict
+     dict: models/konele.splitw2.dict
      fsg: dummy.fsg
      bestpath: true
      fwdflat: true
@@ -24,7 +24,7 @@ handlers:
    convert-gf-jsgf: ./scripts/convert-gf-jsgf.sh
    recognizer:
      hmm: models/est16k.cd_cont_3000-mapadapt
-     dict: models/jutusaated.swwp2.dict
+     dict: models/konele.splitw2.dict
      fsg: dummy.fsg
      bestpath: true
      fwdflat: true
@@ -48,15 +48,9 @@ handlers:
    require: handlers/prettifier
    prettifier: ./prettify-with-numbers.sh
    recognizer:
-       #hmm: models/est16k.cd_cont_3000
        hmm: models/est16k.cd_cont_3000-mapadapt
-       #hmm: models/est16k.cd_cont_3000-cmllr
-       #mllr: models/est16k.cd_cont_3000-cmllr/speech-cmllr.mllr
-       dict: models/jutusaated.swwp2.dict
-       #lm: models/sphinx-trigram.jutusaated.swwp2.arpa.gz
-       lm: models/sphinx-trigram.android-unsup.swwp2.arpa.gz
-       #lm: /home/tanel/remote/bell/home/devel/lm_ee/tmp.3g.arpa.gz
-       #fsg: tmp/goforward.fsg
+       dict: models/konele.splitw2.dict
+       lm: models/sphinx-trigram.konele.splitw2.arpa.gz
        bestpath: true
        maxwpf: 700
        fwdflat: false
@@ -66,7 +60,7 @@ handlers:
        pbeam: 1.0e-50
 
 request_dump_dir: out
-recognizer_encoding: iso-8859-15    
+recognizer_encoding: UTF-8    
 
 # Request throttling: enforces limits based on user IP
 throttling:
