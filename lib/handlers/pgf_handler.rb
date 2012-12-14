@@ -16,7 +16,7 @@ class PocketsphinxServer::PGFHandler < PocketsphinxServer::Handler
   def get_request_language(req)
     lang = req.params['lang']
     if lang == nil
-      return lang = "et"
+      lang = "et"
     end
     return Locale::Info.get_language(Locale::Tag.parse(lang).language)
   end
