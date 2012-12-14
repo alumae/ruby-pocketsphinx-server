@@ -32,7 +32,7 @@ Make sure you have GStreamer devevelopment packages installed. In Debian Squeeze
   
 And configure, make, make install as usual.
 
-== Install Ruby gems: Unicorn and Sinatra, UUID tools, JSON, iso-639
+== Install Ruby gems: Unicorn and Sinatra, UUID tools, JSON, locale
 
 This assumes you have ruby and rubygems installed.
 
@@ -42,7 +42,7 @@ You might want to do this as root:
   gem install sinatra
   gem install uuidtools
   gem install json
-  gem install iso-639
+  gem install locale
   
 Install ruby-gstreamer package (might vary depending on your distribution):
   
