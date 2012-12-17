@@ -36,12 +36,12 @@ class PocketsphinxServer::PGFHandler < PocketsphinxServer::Handler
     digest = MD5.hexdigest lm_name
     pgf_dir = @grammar_dir + '/' + digest
     pgf_basename = File.basename(URI.parse(lm_name).path, ".pgf")
-    return input_lang, output_langs, pgf_dir, pgf_basename
+    return input_lang, output_langs, pgf_dir, pgf_basename, lm_name
   end
   
   def prepare_rec(req)
     puts "Using GF-based grammar"
-    input_lang, output_langs, pgf_dir, pgf_basename = get_req_properties(req)
+    input_lang, output_langs, pgf_dir, pgf_basename, lm_name = get_req_properties(req)
     fsg_file = pgf_dir + '/' + pgf_basename + input_lang + ".fsg"
     dict_file = pgf_dir + '/' + pgf_basename + input_lang + ".dict"
     if not File.exists? fsg_file
@@ -54,7 +54,7 @@ class PocketsphinxServer::PGFHandler < PocketsphinxServer::Handler
   end
 
   def get_hyp_extras(req, hyp)
-    input_lang, output_langs, pgf_dir, pgf_basename = get_req_properties(req)
+    input_lang, output_langs, pgf_dir, pgf_basename, lm_name = get_req_properties(req)
     linearizations = []
     if not output_langs.nil?
       output_langs.split(",").each do |output_lang|
