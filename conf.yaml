@@ -48,16 +48,17 @@ handlers:
    require: handlers/prettifier
    prettifier: ./prettify-with-numbers.sh
    recognizer:
-       hmm: models/est16k.cd_cont_3000-mapadapt
+       hmm: models/est16k.cd_cont_3000
        dict: models/konele.splitw2.dict
        lm: models/sphinx-trigram.konele.splitw2.arpa.gz
-       bestpath: true
-       maxwpf: 700
+       bestpath: false
+       maxwpf: 800
        fwdflat: false
-       maxhmmpf: 12000
-       wbeam: 1.0e-32
+       maxhmmpf: 10000
+       wbeam: 1.0e-22
        beam: 1.0e-50
        pbeam: 1.0e-50
+       
 
 request_dump_dir: out
 recognizer_encoding: UTF-8    
