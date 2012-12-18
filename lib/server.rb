@@ -308,8 +308,31 @@ require 'raw_recognizer'
         rescue
         end
       end
-      return cmn_means.fetch(device_id, nil)
+      return cmn_means.fetch(device_id, get_mean_cmn_mean(cmn_means.values))
     end 
+  
+    # Calculate mean CMN from an array of CMN means
+    # CMN means are given as an array of string, each with comma-seperated values
+    # Returns mean CMN, as a string, comma-seperated
+    def get_mean_cmn_mean(cmn_mean_array)
+      begin
+        if cmn_mean_array.size > 0
+          means = (cmn_mean_array.collect do | s | s.split(",") end).collect do |a| a.collect do |ss| ss.to_f end end
+          sum = [0.0] * means[0].size
+          means.each do | mean |
+            sum.each_with_index do |s,i|
+              sum[i] += mean[i]
+            end
+          end
+          return (sum.collect do |s|  "%.2f" % (s / means.size) end).join(",")
+        else
+          return nil
+        end
+      rescue  Exception => e
+        logger.warn("Failed to calculate CMN mean over saved means:" + e.message)
+        return nil
+      end
+    end
   
     def set_cmn_mean(device_id, mean)
       cmn_means = {}
