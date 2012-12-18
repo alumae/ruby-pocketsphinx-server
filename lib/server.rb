@@ -319,6 +319,7 @@ require 'raw_recognizer'
         if cmn_mean_array.size > 0
           means = (cmn_mean_array.collect do | s | s.split(",") end).collect do |a| a.collect do |ss| ss.to_f end end
           sum = [0.0] * means[0].size
+          means = means.select do | mean | mean.size == sum.size end
           means.each do | mean |
             sum.each_with_index do |s,i|
               sum[i] += mean[i]
