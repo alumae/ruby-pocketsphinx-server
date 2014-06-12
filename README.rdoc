@@ -75,7 +75,8 @@ If you installed Unicorn as a Ruby gem, you might need to execute:
  
  /var/lib/gems/1.8/bin/unicorn -c unicorn.conf.rb config.ru
  
-Test the default configuration (English WSJ language model with HUB4 acostic models), using a raw audio file in the PocketSphinx test directory.
+Test the default configuration (English WSJ language model with HUB4 acostic models), using a raw audio file in the PocketSphinx test directory 
+(replace `$(POCKETSPHINX_DIR)` with the Pocketsphinx source directory):
 
   curl -T $(POCKETSPHINX_DIR)/test/data/wsj/n800_440c0207.wav -H "Content-Type: audio/x-wav"  "http://localhost:8080/recognize"
   
@@ -85,10 +86,22 @@ Response should be:
     "status": 0,
     "hypotheses": [
       {
-        "utterance": "go forward ten meters"
+        "utterance": "the agency isn't likely to take any action until the union's rank and file votes on the contract into three weeks"
+      },
+      {
+        "utterance": "the agency isn't likely to take any action until the union's rank and file puts on the contract into three weeks"
+      },
+      {
+        "utterance": "the agency isn't likely to take any action until the union's rank and file funds from the contract into three weeks"
+      },
+      {
+        "utterance": "the agency isn't likely to take any action until the union's rank and file for from the contract into three weeks"
+      },
+      {
+        "utterance": "the agency isn't likely to take any action until the union's rank and file parts of the contract into three weeks"
       }
     ],
-    "id": "15c7a538d0d0c8d7f59e3cc791320953"
+    "id": "8686a37b5674cbdc63deb13f73de81a5"
   }
 
 
