@@ -75,9 +75,9 @@ If you installed Unicorn as a Ruby gem, you might need to execute:
  
  /var/lib/gems/1.8/bin/unicorn -c unicorn.conf.rb config.ru
  
-Test the default configuration (English "turtle" LM), using a raw audio file in the PocketSphinx test directory.
+Test the default configuration (English WSJ language model with HUB4 acostic models), using a raw audio file in the PocketSphinx test directory.
 
-  curl -T $(POCKETSPHINX_DIR)/test/data/goforward.raw -H "Content-Type: audio/x-raw-int; rate=16000"  "http://localhost:8080/recognize"
+  curl -T $(POCKETSPHINX_DIR)/test/data/wsj/n800_440c0207.wav -H "Content-Type: audio/x-wav"  "http://localhost:8080/recognize"
   
 Response should be:
 
