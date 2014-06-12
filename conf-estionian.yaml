@@ -1,0 +1,66 @@
+
+handlers:
+ - name: JSGFHandler
+   require: handlers/jsgf_handler
+   grammar_dir: user_grammars
+   jsgf-to-fsg: ./scripts/jsgf2fsg.sh
+   fsg-to-dict: ./scripts/fsg-to-dict.sh  
+   recognizer:
+     hmm: models/est16k.cd_cont_3000-mapadapt
+     dict: models/konele.splitw2.dict
+     fsg: dummy.fsg
+     bestpath: true
+     fwdflat: true
+     beam: 1.0e-80
+     pbeam: 1.0e-47
+     wbeam: 1.0e-39
+
+ - name: PGFHandler
+   require: handlers/pgf_handler
+   lang: Est
+   grammar_dir: user_gfs
+   jsgf-to-fsg: ./scripts/jsgf2fsg.sh
+   fsg-to-dict: ./scripts/fsg-to-dict.sh  
+   convert-gf-jsgf: ./scripts/convert-gf-jsgf.sh
+   recognizer:
+     hmm: models/est16k.cd_cont_3000-mapadapt
+     dict: models/konele.splitw2.dict
+     fsg: dummy.fsg
+     bestpath: true
+     fwdflat: true
+     beam: 1.0e-80
+     pbeam: 1.0e-47
+     wbeam: 1.0e-39
+
+ - name: PGFHandler
+   require: handlers/pgf_handler
+   lang: Eng
+   grammar_dir: user_gfs
+   jsgf-to-fsg: ./scripts/jsgf2fsg.sh
+   fsg-to-dict: ./scripts/fsg-to-dict_en.py
+   convert-gf-jsgf: ./scripts/convert-gf-jsgf.sh
+   recognizer:
+      fsg: dummy.fsg
+      hmm: models/voxforge_en_sphinx.cd_cont_5000
+
+  
+ - name: PrettifyingHandler
+   require: handlers/prettifier
+   prettifier: ./prettify-with-numbers.sh
+   recognizer:
+       hmm: models/est16k.cd_cont_3000
+       dict: models/konele.splitw2.dict
+       lm: models/sphinx-trigram.konele.splitw2.arpa.gz
+       bestpath: false
+       maxwpf: 800
+       fwdflat: false
+       maxhmmpf: 10000
+       wbeam: 1.0e-22
+       beam: 1.0e-50
+       pbeam: 1.0e-50
+       
+
+request_dump_dir: out
+recognizer_encoding: UTF-8    
+
+
